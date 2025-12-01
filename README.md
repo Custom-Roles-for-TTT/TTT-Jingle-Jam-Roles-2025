@@ -4,7 +4,7 @@ A pack of [Custom Roles for TTT](https://github.com/Custom-Roles-for-TTT/TTT-Cus
 # Roles
 
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/tbd/tab_tbd.png) TBD
-_Suggested By_: Corvatile\
+_Suggested By_: TBD\
 The TBD is a TEAM role that ...........
 \
 \
