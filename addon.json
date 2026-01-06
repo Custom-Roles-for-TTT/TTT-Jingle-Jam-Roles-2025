@@ -1,0 +1,22 @@
+{
+  "title": "Jingle Jam 2025 Roles Pack (CR for TTT)",
+  "type": "ServerContent",
+  "ignore": [
+    ".git*",
+    ".vscode*",
+    "*.md",
+    "*.iml",
+    ".idea*",
+    ".luacheckrc",
+    "*.psd",
+    "*.rockspec",
+    "*.vcproj",
+    "*.svn*",
+    "*.tmpl",
+    "LICENSE",
+    "templates*",
+    "images*",
+    "*.sw.vtx",
+    "*.xbox.vtx"
+  ]
+}
