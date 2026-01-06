@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui/ttt/roles/mgb/icon_mgb
+	"$vertexcolor" 1
+	"$vertexalpha" 1
+	"$translucent" 1
+}
