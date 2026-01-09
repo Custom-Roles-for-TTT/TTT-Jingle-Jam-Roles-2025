@@ -3,6 +3,29 @@ A pack of [Custom Roles for TTT](https://github.com/Custom-Roles-for-TTT/TTT-Cus
 
 # Roles
 
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/sib/tab_sib.png) Sibling
+_Suggested By_: u/Vitaproficiscar\
+The Sibling is a Special Innocent role that is assigned a shop-having target. When their target buys something from the shop, the Sibling gets a copy (and sometimes steals the item entirely).
+\
+\
+**ConVars**
+```cpp
+ttt_sibling_enabled                  0   // Whether or not a Sibling should spawn
+ttt_sibling_spawn_weight             1   // The weight assigned to spawning a Sibling
+ttt_sibling_min_players              0   // The minimum number of players required to spawn a Sibling
+ttt_sibling_starting_health          100 // The amount of health a Sibling starts with
+ttt_sibling_max_health               100 // The maximum amount of health a Sibling can have
+ttt_sibling_respawn_health           100 // What amount of health to give the Sibling when they are killed and respawned
+ttt_sibling_copy_count               1   // How many times the sibling should copy their target's shop purchases. Set to "0" to copy all purchases
+ttt_sibling_steal_chance             0.5 // The chance that a sibling will steal their target's shop purchase instead of copying (e.g. 0.5 = 50% chance to steal)
+ttt_sibling_target_innocents         1   // Whether the sibling's target can be an innocent role (not including detectives)
+ttt_sibling_target_detectives        1   // Whether the sibling's target can be a detective role
+ttt_sibling_target_traitors          1   // Whether the sibling's target can be a traitor role
+ttt_sibling_target_independents      1   // Whether the sibling's target can be an independent role
+ttt_sibling_target_jesters           1   // Whether the sibling's target can be a jester role
+ttt_sibling_target_monsters          1   // Whether the sibling's target can be a monster role
+```
+
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/rsw/tab_rsw.png) Randoswapper
 _Suggested By_: CamelChip\
 The Randoswapper is a Jester role that swaps roles with their killer and triggers a Randomat event instead of dying.
