@@ -76,6 +76,7 @@ function SWEP:Initialize()
 
             local owner = self:GetOwner()
             if not IsPlayer(owner) then return end
+            if client ~= owner then return end
 
             surface.SetFont("TabLarge")
             surface.SetTextColor(255, 255, 255, 230)
