@@ -146,9 +146,7 @@ if SERVER then
             self:SetState(CHEF_STOVE_STATE_COOKING)
         else
             local food = CreateEntity("ttt_chef_food")
-            -- TODO: Adjust spawn height
-            food:SetPos(self:GetPos() + Vector(0, 0, 2))
-            -- TODO: Nullify movement
+            food:SetPos(self:GetPos() + Vector(0, 0, 20))
             food:SetChef(placer)
             food:SetFoodType(self:GetFoodType())
             if state == CHEF_STOVE_STATE_BURNT then
