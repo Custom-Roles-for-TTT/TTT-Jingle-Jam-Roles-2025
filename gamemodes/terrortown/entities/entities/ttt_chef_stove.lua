@@ -2,6 +2,11 @@ if SERVER then
     AddCSLuaFile()
 end
 
+local ents = ents
+local table = table
+
+local CreateEntity = ents.Create
+
 -- State
 CHEF_STOVE_STATE_IDLE = 0
 CHEF_STOVE_STATE_COOKING = 1
@@ -33,13 +38,15 @@ if CLIENT then
                 if placer ~= client then return nil end
 
                 local hint = txt
-                local status = stove:GetStatus()
-                if status == CHEF_STOVE_STATE_COOKING then
-                    local remaining = CurTime() - stove:GetEndTime()
+                local state = stove:GetState()
+                if state == CHEF_STOVE_STATE_COOKING then
+                    local remaining = stove:GetEndTime() - CurTime()
                     hint_params.time = util.SimpleTime(remaining, "%02i:%02i")
-                    hint = hint .. "_cooking"
-                elseif status >= CHEF_STOVE_STATE_DONE then
-                    hint = hint .. "_retrieve_" .. status
+                    hint = hint .. "_progress"
+                elseif state >= CHEF_STOVE_STATE_DONE then
+                    local remaining = stove:GetOvercookTime() - CurTime()
+                    hint_params.time = util.SimpleTime(remaining, "%02i:%02i")
+                    hint = hint .. "_retrieve_" .. state
                 else
                     hint = hint .. "_start"
                 end
@@ -58,52 +65,43 @@ ENT.StoveModel = "models/props_forest/stove01.mdl"
 
 AccessorFuncDT(ENT, "FoodType", "FoodType")
 AccessorFuncDT(ENT, "EndTime", "EndTime")
+AccessorFuncDT(ENT, "OvercookTime", "OvercookTime")
 AccessorFuncDT(ENT, "State", "State")
 AccessorFuncDT(ENT, "Placer", "Placer")
-
-local food_model =
-{
-    [CHEF_FOOD_TYPE_BURGER] = "models/food/burger.mdl",
-    [CHEF_FOOD_TYPE_HOTDOG] = "models/food/hotdog.mdl",
-    [CHEF_FOOD_TYPE_FISH] = "models/props/de_inferno/goldfish.mdl"
-}
 
 function ENT:SetupDataTables()
    self:DTVar("Int", 0, "FoodType")
    self:DTVar("Int", 1, "EndTime")
-   self:DTVar("Int", 2, "State")
+   self:DTVar("Int", 2, "OvercookTime")
+   self:DTVar("Int", 3, "State")
    self:DTVar("Entity", 0, "Placer")
 end
 
 function ENT:Initialize()
-    if not SERVER then return end
-
     self:SetModel(self.StoveModel)
 
-    self:PhysicsInit(SOLID_VPHYSICS)
+    if SERVER then
+        self:PhysicsInit(SOLID_VPHYSICS)
+    end
     self:SetMoveType(MOVETYPE_VPHYSICS)
     self:SetSolid(SOLID_BBOX)
-    self:DrawShadow(true)
-
     self:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE)
 
-    local phys = self:GetPhysicsObject()
-    if IsValid(phys) then
-        phys:Wake()
+    if SERVER then
+        self:SetUseType(SIMPLE_USE)
+
+        local phys = self:GetPhysicsObject()
+        if IsValid(phys) then
+            phys:Wake()
+        end
+
+        self:WeldToGround(true)
     end
-
-    self:WeldToGround(true)
-    self:SetUseType(CONTINUOUS_USE)
-end
-
-function ENT:Use(ply)
-    if not IsPlayer(ply) then return end
-    if ply:IsActive() then return end
-
-    print(food_model[self:GetFoodType()])
 end
 
 if SERVER then
+    local cook_time = CreateConVar("ttt_chef_cook_time", "30", FCVAR_REPLICATED, "How long (in seconds) it takes to cook food", 1, 60)
+    local overcook_time = CreateConVar("ttt_chef_overcook_time", "5", FCVAR_REPLICATED, "How long (in seconds) after food is finished cooking before it burns", 1, 60)
     local damage_own_stove = CreateConVar("ttt_chef_damage_own_stove", "0", FCVAR_NONE, "Whether a stove's owner can damage it", 0, 1)
     local warn_damage = CreateConVar("ttt_chef_warn_damage", "1", FCVAR_NONE, "Whether to warn a stove's owner is warned when it is damaged", 0, 1)
     local warn_destroy = CreateConVar("ttt_chef_warn_destroy", "1", FCVAR_NONE, "Whether to warn a stove's owner is warned when it is destroyed", 0, 1)
@@ -133,12 +131,47 @@ if SERVER then
     end
 
     function ENT:Use(activator)
-        if not IsPlayer(activator) then return end
+        if not IsPlayer(activator) or not activator:IsActive() then return end
 
         local placer = self:GetPlacer()
         if not IsPlayer(placer) then return end
+        if activator ~= placer then return end
 
-        -- TODO: Stop cooking, if the food is at least done
+        local state = self:GetState()
+        if state == CHEF_STOVE_STATE_COOKING then return end
+
+        if state == CHEF_STOVE_STATE_IDLE then
+            self:SetEndTime(CurTime() + cook_time:GetInt())
+            self:SetOvercookTime(self:GetEndTime() + overcook_time:GetInt())
+            self:SetState(CHEF_STOVE_STATE_COOKING)
+        else
+            local food = CreateEntity("ttt_chef_food")
+            -- TODO: Adjust spawn height
+            food:SetPos(self:GetPos() + Vector(0, 0, 2))
+            -- TODO: Nullify movement
+            food:SetChef(placer)
+            food:SetFoodType(self:GetFoodType())
+            if state == CHEF_STOVE_STATE_BURNT then
+                food:SetBurnt(true)
+            end
+            food:Spawn()
+
+            self:SetState(CHEF_STOVE_STATE_IDLE)
+        end
+    end
+
+    function ENT:Think()
+        local state = self:GetState()
+        if state < CHEF_STOVE_STATE_COOKING or state > CHEF_STOVE_STATE_DONE then return end
+
+        local endTime = self:GetEndTime()
+        if endTime <= CurTime() then
+            if self:GetOvercookTime() <= CurTime() then
+                self:SetState(CHEF_STOVE_STATE_BURNT)
+            elseif state ~= CHEF_STOVE_STATE_DONE then
+                self:SetState(CHEF_STOVE_STATE_DONE)
+            end
+        end
     end
 
     function ENT:DestroyStove()
