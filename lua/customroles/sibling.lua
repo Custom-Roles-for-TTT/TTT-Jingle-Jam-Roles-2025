@@ -70,8 +70,6 @@ ROLE.translations = {
     }
 }
 
-RegisterRole(ROLE)
-
 ------------------
 -- ROLE CONVARS --
 ------------------
@@ -164,7 +162,7 @@ if SERVER then
         net.Send(ply)
     end
 
-    ROLE_ON_ROLE_ASSIGNED[ROLE_SIBLING] = function(ply)
+    ROLE.onroleassigned = function(ply)
         -- Use a slight delay to make sure nothing else is changing this player's role first
         timer.Simple(0.25, function()
             AssignTarget(ply)
@@ -352,3 +350,5 @@ if CLIENT then
         end
     end)
 end
+
+RegisterRole(ROLE)
