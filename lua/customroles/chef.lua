@@ -68,10 +68,9 @@ ROLE.translations = {
         ["chf_stove_type_3"] = "Fish",
         ["chf_buff_type_label"] = "Buff Type: ",
         ["chf_buff_type_0"] = "None",
-        -- TODO
-        ["chf_buff_type_1"] = "BURG",
-        ["chf_buff_type_2"] = "DOG",
-        ["chf_buff_type_3"] = "HSIF"
+        ["chf_buff_type_1"] = "Speed Boost",
+        ["chf_buff_type_2"] = "Health Regen.",
+        ["chf_buff_type_3"] = "Damage Boost"
     }
 }
 

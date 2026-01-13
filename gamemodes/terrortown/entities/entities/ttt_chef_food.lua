@@ -33,8 +33,8 @@ function ENT:Initialize()
         self:PhysicsInit(SOLID_VPHYSICS)
     end
     self:SetMoveType(MOVETYPE_VPHYSICS)
-    self:SetSolid(SOLID_BBOX)
-    self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+    self:SetSolid(SOLID_VPHYSICS)
+    self:SetCollisionGroup(COLLISION_GROUP_PROJECTILE)
 
     if SERVER then
         local phys = self:GetPhysicsObject()
@@ -42,17 +42,42 @@ function ENT:Initialize()
             phys:Wake()
         end
     end
-
-    -- TODO: Fix not being able to pick these up most of the time
 end
 
 if SERVER then
-    function ENT:PhysicsCollide(data, physObj)
-        if not self.DidCollide then
-            -- TODO: Buff/debuff
-            self.DidCollide = true
+    local function GetFoodName(foodType, isBurnt)
+        local name = isBurnt and "burnt " or ""
+        if foodType == CHEF_FOOD_TYPE_BURGER then
+            return name .. "Burger"
+        elseif foodType == CHEF_FOOD_TYPE_HOTDOG then
+            return name .. "Hot Dog"
+        end
+        return name .. "Fish"
+    end
+
+    local function GetFoodEffect(foodType, isBurnt)
+        if isBurnt then
+            return "kinda sick and a bit weak."
         end
 
-        --self:Remove()
+        if foodType == CHEF_FOOD_TYPE_BURGER then
+            return "like you can move a bit faster."
+        elseif foodType == CHEF_FOOD_TYPE_HOTDOG then
+            return "like you're slowly getting healthier."
+        end
+        return "like you're a bit more powerful."
+    end
+
+    function ENT:PhysicsCollide(data, physObj)
+        if not IsValid(self) then return end
+        if self.DidCollide then return end
+
+        local ent = data.HitEntity
+        if not IsPlayer(ent) then return end
+
+        ent:QueueMessage(MSG_PRINTTALK, "You ate a " .. GetFoodName(self:GetFoodType(), self:GetBurnt()) .. " and now you feel " .. GetFoodEffect(self:GetFoodType(), self:GetBurnt()))
+        -- TODO: Buff/debuff effects
+        self.DidCollide = true
+        self:Remove()
     end
 end
