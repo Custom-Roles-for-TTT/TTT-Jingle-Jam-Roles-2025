@@ -1,10 +1,15 @@
 local ents = ents
 local hook = hook
+local ipairs = ipairs
+local pairs = pairs
 local player = player
+local timer = timer
 
 local AddHook = hook.Add
 local CreateEntity = ents.Create
 local PlayerIterator = player.Iterator
+local RemoveHook = hook.Remove
+local TimerRemove = timer.Remove
 
 local ROLE = {}
 
@@ -14,9 +19,10 @@ ROLE.nameplural = "Chefs"
 ROLE.nameext = "a Chef"
 ROLE.nameshort = "chf"
 
-ROLE.desc = [[You are {role}!
-]]
-ROLE.shortdesc = ""
+ROLE.desc = [[You are {role}! Place down a stove with
+your chosen food to cook up some buffs
+for your friends, and damage for your foes.]]
+ROLE.shortdesc = "Cooks a chosen food for other players which provides a buff (or, if burnt, causes damage)"
 
 ROLE.team = ROLE_TEAM_INNOCENT
 
@@ -47,6 +53,56 @@ ROLE.convars =
     {
         cvar = "ttt_chef_hat_enabled",
         type = ROLE_CONVAR_TYPE_BOOL
+    },
+    {
+        cvar = "ttt_chef_burger_time",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_chef_burger_amount",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 2
+    },
+    {
+        cvar = "ttt_chef_hotdog_time",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_chef_hotdog_interval",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_chef_hotdog_amount",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_chef_fish_time",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_chef_fish_amount",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 2
+    },
+    {
+        cvar = "ttt_chef_burnt_time",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_chef_burnt_interval",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_chef_burnt_amount",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
     }
 }
 
@@ -74,7 +130,33 @@ ROLE.translations = {
     }
 }
 
+local function RemoveBuffs(ply)
+    if SERVER then
+        if ply.TTTChefTimers then
+            for _, t in ipairs(ply.TTTChefTimers) do
+                TimerRemove(t)
+            end
+            ply.TTTChefTimers = nil
+        end
+    end
+
+    if ply.TTTChefHooks then
+        if SERVER then
+            net.Start("TTTChefFoodRemoveHooks")
+            net.Send(ply)
+        end
+
+        for k, v in pairs(ply.TTTChefHooks) do
+            if not v then continue end
+            RemoveHook(v, k)
+        end
+        ply.TTTChefHooks = nil
+    end
+end
+
 if SERVER then
+    util.AddNetworkString("TTTChefFoodRemoveHooks")
+
     ------------------
     -- ROLE CONVARS --
     ------------------
@@ -115,6 +197,40 @@ if SERVER then
         SafeRemoveEntity(ply.TTTChefHat)
         ply.TTTChefHat = nil
     end)
+
+    -- Remove buffs when a player dies
+    AddHook("PostPlayerDeath", "Chef_PostPlayerDeath_Cleanup", function(ply)
+        if not IsPlayer(ply) then return end
+        RemoveBuffs(ply)
+    end)
+end
+
+if CLIENT then
+    -------------------
+    -- ROLE FEATURES --
+    -------------------
+
+    net.Receive("TTTChefFoodRemoveHooks", function()
+        if not IsValid(client) then
+            client = LocalPlayer()
+        end
+        RemoveBuffs(client)
+    end)
+
+    --------------
+    -- TUTORIAL --
+    --------------
+
+    AddHook("TTTTutorialRoleText", "Chef_TTTTutorialRoleText", function(role, titleLabel)
+        if role == ROLE_CHEF then
+            local roleColor = GetRoleTeamColor(ROLE_TEAM_INNOCENT)
+            local html = "The " .. ROLE_STRINGS[ROLE_CHEF] .. " is a member of the <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>innocent</span> team whose goal is to."
+
+            -- TODO
+
+            return html
+        end
+    end)
 end
 
 RegisterRole(ROLE)
@@ -125,8 +241,15 @@ CHEF_FOOD_TYPE_BURGER = 1
 CHEF_FOOD_TYPE_HOTDOG = 2
 CHEF_FOOD_TYPE_FISH = 3
 
+-------------
+-- CLEANUP --
+-------------
+
 AddHook("TTTPrepareRound", "Chef_PrepareRound", function()
-    for _, v in PlayerIterator() do
-        SafeRemoveEntity(v.TTTChefHat)
+    for _, p in PlayerIterator() do
+        RemoveBuffs(p)
+        if SERVER then
+            SafeRemoveEntity(p.TTTChefHat)
+        end
     end
 end)
