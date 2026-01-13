@@ -16,6 +16,7 @@ ttt_pinata_min_players              0   // The minimum number of players require
 ttt_pinata_starting_health          150 // The amount of health a Piñata starts with
 ttt_pinata_max_health               150 // The maximum amount of health a Piñata can have
 ttt_pinata_damage_interval          20  // How much damage the Piñata must take between weapon drops
+ttt_pinata_announce                 1   // Whether to announce to everyone that there is a Piñata in the round
 ```
 
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/rsw/tab_rsw.png) Randoswapper

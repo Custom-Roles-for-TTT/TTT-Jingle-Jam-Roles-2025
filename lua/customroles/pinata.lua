@@ -40,6 +40,10 @@ ROLE.convars =
         cvar = "ttt_pinata_damage_interval",
         type = ROLE_CONVAR_TYPE_NUM,
         decimal = 0
+    },
+    {
+        cvar = "ttt_pinata_announce",
+        type = ROLE_CONVAR_TYPE_BOOL
     }
 }
 
@@ -58,6 +62,7 @@ ROLE.translations =
 ------------------
 
 local pinata_damage_interval = CreateConVar("ttt_pinata_damage_interval", "20", FCVAR_REPLICATED, "How much damage the piñata must take between weapon drops", 1, 100)
+local pinata_announce = CreateConVar("ttt_pinata_announce", "1", FCVAR_REPLICATED, "Whether to announce to everyone that there is a piñata in the round", 0, 1)
 
 if SERVER then
     -------------------
@@ -133,6 +138,31 @@ if SERVER then
         if not ent.TTTPinatasDamaged or not TableHasValue(ent.TTTPinatasDamaged, att:SteamID64()) then
             dmginfo:ScaleDamage(0)
         end
+    end)
+
+    ------------------
+    -- ANNOUNCEMENT --
+    ------------------
+
+    AddHook("TTTBeginRound", "Pinata_Announce_TTTBeginRound", function()
+        if not pinata_announce:GetBool() then return end
+
+        timer.Simple(1.5, function()
+            local hasPinata = false
+            for _, v in PlayerIterator() do
+                if v:IsPinata() then
+                    hasPinata = true
+                end
+            end
+
+            if hasPinata then
+                for _, v in PlayerIterator() do
+                    if not v:IsPinata() then
+                        v:QueueMessage(MSG_PRINTBOTH, "There is " .. ROLE_STRINGS_EXT[ROLE_PINATA] .. "!")
+                    end
+                end
+            end
+        end)
     end)
 
     ----------------
@@ -258,6 +288,10 @@ if CLIENT then
         if role == ROLE_PINATA then
             local roleColor = GetRoleTeamColor(ROLE_TEAM_INDEPENDENT)
             local html = "The " .. ROLE_STRINGS[ROLE_PINATA] .. " is an <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>independent</span> role whose goal is to survive until the end of the round."
+
+            if pinata_announce:GetBool() then
+                html = html .. "<span style='display: block; margin-top: 10px;'>All players <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>are notified</span> when there is " .. ROLE_STRINGS_EXT[ROLE_PINATA] .. " in the round.</span>"
+            end
 
             local damage_interval = pinata_damage_interval:GetInt()
             html = html .. "<span style='display: block; margin-top: 10px;'>Unfortunately for them, they <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>drop a random shop weapon</span> every " .. damage_interval .. " damage they take, which makes them a prime target.</span>"
