@@ -150,17 +150,6 @@ if SERVER then
     util.AddNetworkString("TTTChefFoodAddHook")
     util.AddNetworkString("TTTChefFoodRemoveHook")
 
-    local burger_time = CreateConVar("ttt_chef_burger_time", "30", FCVAR_NONE, "The amount of time the burger effect should last", 1, 120)
-    local burger_amount = CreateConVar("ttt_chef_burger_amount", "0.5", FCVAR_NONE, "The percentage of speed boost that the burger eater should get (e.g. 0.5 = 50% speed boost)", 0.1, 1)
-    local hotdog_time = CreateConVar("ttt_chef_hotdog_time", "30", FCVAR_NONE, "The amount of time the hot dog effect should last", 1, 120)
-    local hotdog_interval = CreateConVar("ttt_chef_hotdog_interval", "1", FCVAR_NONE, "How often the hot dog eater's health should be restored", 1, 60)
-    local hotdog_amount = CreateConVar("ttt_chef_hotdog_amount", "1", FCVAR_NONE, "The amount of the hot dog eater's health to restore per interval", 1, 50)
-    local fish_time = CreateConVar("ttt_chef_fish_time", "30", FCVAR_NONE, "The amount of time the fish effect should last", 1, 120)
-    local fish_amount = CreateConVar("ttt_chef_fish_amount", "0.5", FCVAR_NONE, "The percentage of damage boost that the fish eater should get (e.g. 0.5 = 50% damage boost)", 0.1, 1)
-    local burnt_time = CreateConVar("ttt_chef_burnt_time", "30", FCVAR_NONE, "The amount of time the burnt food effect should last", 1, 120)
-    local burnt_interval = CreateConVar("ttt_chef_burnt_interval", "1", FCVAR_NONE, "How often the burnt food eater's health should be removed", 1, 60)
-    local burnt_amount = CreateConVar("ttt_chef_burnt_amount", "1", FCVAR_NONE, "The amount of the burnt food eater's health to remove per interval", 1, 50)
-
     local function GetFoodName(foodType, isBurnt)
         local name = isBurnt and "burnt " or ""
         if foodType == CHEF_FOOD_TYPE_BURGER then
@@ -207,9 +196,9 @@ if SERVER then
 
         local time
         if isBurnt then
-            time = burnt_time:GetInt()
-            local interval = burnt_interval:GetInt()
-            local amount = burnt_amount:GetInt()
+            time = GetConVar("ttt_chef_burnt_time"):GetInt()
+            local interval = GetConVar("ttt_chef_burnt_interval"):GetInt()
+            local amount = GetConVar("ttt_chef_burnt_amount"):GetInt()
             local repetitions = MathRound(time / interval)
             local chef = self:GetChef()
             timer.Create(timerId, interval, repetitions, function()
@@ -227,9 +216,9 @@ if SERVER then
             end)
         else
             if foodType == CHEF_FOOD_TYPE_HOTDOG then
-                time = hotdog_time:GetInt()
-                local interval = hotdog_interval:GetInt()
-                local amount = hotdog_amount:GetInt()
+                time = GetConVar("ttt_chef_hotdog_time"):GetInt()
+                local interval = GetConVar("ttt_chef_hotdog_interval"):GetInt()
+                local amount = GetConVar("ttt_chef_hotdog_amount"):GetInt()
                 local repetitions = MathRound(time / interval)
                 timer.Create(timerId, interval, repetitions, function()
                     if not IsPlayer(ent) then
@@ -243,11 +232,11 @@ if SERVER then
             else
                 local amount
                 if foodType == CHEF_FOOD_TYPE_BURGER then
-                    time = burger_time:GetInt()
-                    amount = burger_amount:GetFloat()
+                    time = GetConVar("ttt_chef_burger_time"):GetInt()
+                    amount = GetConVar("ttt_chef_burger_amount"):GetFloat()
                 else
-                    time = fish_time:GetInt()
-                    amount = fish_amount:GetFloat()
+                    time = GetConVar("ttt_chef_fish_time"):GetInt()
+                    amount = GetConVar("ttt_chef_fish_amount"):GetFloat()
                 end
                 AddBuffHook(ent, entIndex, foodType, amount)
                 timer.Create(timerId, time, 1, function()

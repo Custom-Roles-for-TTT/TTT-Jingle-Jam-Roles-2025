@@ -130,6 +130,22 @@ ROLE.translations = {
     }
 }
 
+------------------
+-- ROLE CONVARS --
+------------------
+
+local hat_enabled = CreateConVar("ttt_chef_hat_enabled", "1", FCVAR_REPLICATED, "Whether the chef gets a hat", 0, 1)
+local burger_time = CreateConVar("ttt_chef_burger_time", "30", FCVAR_REPLICATED, "The amount of time the burger effect should last", 1, 120)
+local burger_amount = CreateConVar("ttt_chef_burger_amount", "0.5", FCVAR_REPLICATED, "The percentage of speed boost that the burger eater should get (e.g. 0.5 = 50% speed boost)", 0.1, 1)
+local hotdog_time = CreateConVar("ttt_chef_hotdog_time", "30", FCVAR_REPLICATED, "The amount of time the hot dog effect should last", 1, 120)
+local hotdog_interval = CreateConVar("ttt_chef_hotdog_interval", "1", FCVAR_REPLICATED, "How often the hot dog eater's health should be restored", 1, 60)
+local hotdog_amount = CreateConVar("ttt_chef_hotdog_amount", "1", FCVAR_REPLICATED, "The amount of the hot dog eater's health to restore per interval", 1, 50)
+local fish_time = CreateConVar("ttt_chef_fish_time", "30", FCVAR_REPLICATED, "The amount of time the fish effect should last", 1, 120)
+local fish_amount = CreateConVar("ttt_chef_fish_amount", "0.5", FCVAR_REPLICATED, "The percentage of damage boost that the fish eater should get (e.g. 0.5 = 50% damage boost)", 0.1, 1)
+local burnt_time = CreateConVar("ttt_chef_burnt_time", "30", FCVAR_REPLICATED, "The amount of time the burnt food effect should last", 1, 120)
+local burnt_interval = CreateConVar("ttt_chef_burnt_interval", "1", FCVAR_REPLICATED, "How often the burnt food eater's health should be removed", 1, 60)
+local burnt_amount = CreateConVar("ttt_chef_burnt_amount", "1", FCVAR_REPLICATED, "The amount of the burnt food eater's health to remove per interval", 1, 50)
+
 local function RemoveBuffs(ply)
     if SERVER then
         if ply.TTTChefTimers then
@@ -157,11 +173,6 @@ end
 if SERVER then
     util.AddNetworkString("TTTChefFoodRemoveHooks")
 
-    ------------------
-    -- ROLE CONVARS --
-    ------------------
-
-    local hat_enabled = CreateConVar("ttt_chef_hat_enabled", "1", FCVAR_NONE, "Whether the chef gets a hat", 0, 1)
 
     -------------------
     -- ROLE FEATURES --
@@ -225,9 +236,23 @@ if CLIENT then
     AddHook("TTTTutorialRoleText", "Chef_TTTTutorialRoleText", function(role, titleLabel)
         if role == ROLE_CHEF then
             local roleColor = GetRoleTeamColor(ROLE_TEAM_INNOCENT)
-            local html = "The " .. ROLE_STRINGS[ROLE_CHEF] .. " is a member of the <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>innocent</span> team whose goal is to."
+            local html = "The " .. ROLE_STRINGS[ROLE_CHEF] .. " is a member of the <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>innocent team</span> whose goal is to help their team by cooking food which provides a buff."
 
-            -- TODO
+            -- Stove
+            html = html .. "<span style='display: block; margin-top: 10px;'>Choose a food and <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>place down a stove using the Stove Placer</span>, then interact with the placed stove to start cooking.</span>"
+
+            -- Buffs
+            html = html .. "<span style='display: block; margin-top: 10px;'>The possible foods (and their effects):<ul>"
+                html = html .. "<li>Burger - Increases the player's <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>movement speed by " .. (burger_amount:GetFloat() * 100) .. "%</span> for " .. burger_time:GetInt() .. " second(s).</li>"
+                html = html .. "<li>Hot Dog - <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>Heals the player</span> for " .. hotdog_amount:GetInt() .. " health every " .. hotdog_interval:GetInt() .. " second(s) for a total of " .. hotdog_time:GetInt() .. " seconds. Will heal over maximum health, if needed.</li>"
+                html = html .. "<li>Fish - Increases the player's <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>damage by " .. (fish_amount:GetFloat() * 100) .. "%</span> for " .. fish_time:GetInt() .. " second(s).</li>"
+            html = html .. "</ul></span>"
+
+            -- Cook time
+            html = html .. "<span style='display: block; margin-top: 10px;'>Food takes " .. GetConVar("ttt_chef_cook_time"):GetInt() .. " second(s) to cook and <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>will burn</span> if left in the stove for more than " .. GetConVar("ttt_chef_overcook_time"):GetInt() .. " second(s) extra.</span>"
+
+            -- Burnt effect
+            html = html .. "<span style='display: block; margin-top: 10px;'><span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>Burnt food hurts the player</span> for " .. burnt_amount:GetInt() .. " health every " .. burnt_interval:GetInt() .. " second(s) for a total of " .. burnt_time:GetInt() .. " seconds. Will kill the player if they reach 0 health.</span>"
 
             return html
         end
