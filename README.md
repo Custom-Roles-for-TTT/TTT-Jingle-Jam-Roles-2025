@@ -3,6 +3,36 @@ A pack of [Custom Roles for TTT](https://github.com/Custom-Roles-for-TTT/TTT-Cus
 
 # Roles
 
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/chf/tab_chf.png) Chef
+_Suggested By_: Sparth\
+The Chef is an Special Innocent role that cooks a chosen food for other players which provides a buff (or, if burnt, causes damage).
+\
+\
+**ConVars**
+```cpp
+ttt_chef_enabled          0   // Whether or not a Chef should spawn
+ttt_chef_spawn_weight     1   // The weight assigned to spawning a Chef
+ttt_chef_min_players      0   // The minimum number of players required to spawn a Chef
+ttt_chef_starting_health  100 // The amount of health a Chef starts with
+ttt_chef_max_health       100 // The maximum amount of health a Chef can have
+ttt_chef_hat_enabled      1   // Whether the Chef gets a hat
+ttt_chef_cook_time        30  // How long (in seconds) it takes to cook food
+ttt_chef_overcook_time    5   // How long (in seconds) after food is finished cooking before it burns
+ttt_chef_damage_own_stove 0   // Whether a stove's owner can damage it
+ttt_chef_warn_damage      1   // Whether to warn a stove's owner is warned when it is damaged
+ttt_chef_warn_destroy     1   // Whether to warn a stove's owner is warned when it is destroyed
+ttt_chef_burger_time      30  // The amount of time the burger effect should last
+ttt_chef_burger_amount    0.5 // The percentage of speed boost that the burger eater should get (e.g. 0.5 = 50% speed boost)
+ttt_chef_hotdog_time      30  // The amount of time the hot dog effect should last
+ttt_chef_hotdog_interval  1   // How often the hot dog eater's health should be restored
+ttt_chef_hotdog_amount    1   // The amount of the hot dog eater's health to restore per interval
+ttt_chef_fish_time        30  // The amount of time the fish effect should last
+ttt_chef_fish_amount      0.5 // The percentage of damage boost that the fish eater should get (e.g. 0.5 = 50% damage boost)
+ttt_chef_burnt_time       30  // The amount of time the burnt food effect should last
+ttt_chef_burnt_interval   1   // How often the burnt food eater's health should be removed
+ttt_chef_burnt_amount     1   // The amount of the burnt food eater's health to remove per interval
+```
+
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/pin/tab_pin.png) Piñata
 _Suggested By_: detection.exe\
 The Piñata is an Independent role that drops shop weapons on an interval based on how much damage they take. They also cannot damage another player unless they are damaged by them first.

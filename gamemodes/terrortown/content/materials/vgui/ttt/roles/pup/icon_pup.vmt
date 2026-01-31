@@ -1,6 +1,6 @@
 "UnlitGeneric"
 {
-	"$basetexture" "vgui/ttt/roles/pup/icon_pup
+	"$basetexture" "vgui/ttt/roles/pup/icon_pup"
 	"$vertexcolor" 1
 	"$vertexalpha" 1
 	"$translucent" 1
