@@ -43,6 +43,13 @@ ROLE.convars =
         decimal = 1
     },
     {
+        cvar = "ttt_sibling_share_mode",
+        type = ROLE_CONVAR_TYPE_DROPDOWN,
+        choices = {"Copy", "Chance to Steal", "Copy w/ Chance to Steal"},
+        isNumeric = true,
+        numericOffset = 0
+    },
+    {
         cvar = "ttt_sibling_target_innocents",
         type = ROLE_CONVAR_TYPE_BOOL
     },
@@ -70,12 +77,17 @@ ROLE.translations = {
     }
 }
 
+SIBLING_SHARE_MODE_COPY = 1
+SIBLING_SHARE_MODE_STEAL = 2
+SIBLING_SHARE_MODE_COPY_STEAL = 3
+
 ------------------
 -- ROLE CONVARS --
 ------------------
 
-local sibling_copy_count = CreateConVar("ttt_sibling_copy_count", "1", FCVAR_REPLICATED, "How many times the sibling should copy their target's shop purchases. Set to \"0\" to copy all purchases")
-local sibling_steal_chance = CreateConVar("ttt_sibling_steal_chance", "0.5", FCVAR_REPLICATED, "The chance that a sibling will steal their target's shop purchase instead of copying (e.g. 0.5 = 50% chance to steal)", 0, 1)
+local sibling_share_mode = CreateConVar("ttt_sibling_share_mode", "3", FCVAR_REPLICATED, "How to handle the sibling's \"share\" logic. 1 - Copy the purchased item. 2 - Chance to steal. 3 - Copy the purchased item with a chance to steal", 1, 3)
+local sibling_copy_count = CreateConVar("ttt_sibling_copy_count", "1", FCVAR_REPLICATED, "How many times the sibling should copy their target's shop purchases. Set to \"0\" to copy all purchases. Only used when \"ttt_sibling_share_mode\" is set to a mode that copies", 0, 25)
+local sibling_steal_chance = CreateConVar("ttt_sibling_steal_chance", "0.5", FCVAR_REPLICATED, "The chance that a sibling will steal their target's shop purchase instead of copying (e.g. 0.5 = 50% chance to steal). Only used when \"ttt_sibling_share_mode\" is set to a mode that steals", 0, 1)
 local sibling_target_innocents = CreateConVar("ttt_sibling_target_innocents", "1", FCVAR_REPLICATED, "Whether the sibling's target can be an innocent role (not including detectives)", 0, 1)
 local sibling_target_detectives = CreateConVar("ttt_sibling_target_detectives", "1", FCVAR_REPLICATED, "Whether the sibling's target can be a detective role", 0, 1)
 local sibling_target_traitors = CreateConVar("ttt_sibling_target_traitors", "1", FCVAR_REPLICATED, "Whether the sibling's target can be a traitor role", 0, 1)
@@ -131,7 +143,7 @@ if SERVER then
             return
         end
 
-        local target = targets[MathRandom(#targets)]
+        local target = Entity(1)-- targets[MathRandom(#targets)]
         ply:SetProperty("TTTSiblingTarget", target:SteamID64(), ply)
         ply.TTTSiblingCopyCount = 0
         ply:QueueMessage(MSG_PRINTBOTH, target:Nick() .. " is your " .. ROLE_STRINGS[ROLE_SIBLING] .. "!")
@@ -169,9 +181,20 @@ if SERVER then
         end)
     end
 
+    local function IsCopyMode(mode)
+        return mode == SIBLING_SHARE_MODE_COPY or mode == SIBLING_SHARE_MODE_COPY_STEAL
+    end
+
+    local function IsStealMode(mode)
+        return mode == SIBLING_SHARE_MODE_STEAL or mode == SIBLING_SHARE_MODE_COPY_STEAL
+    end
+
     AddHook("TTTCanOrderEquipment", "Sibling_TTTCanOrderEquipment", function(ply, item, is_item)
+        local share_mode = sibling_share_mode:GetInt()
         local copy_count = sibling_copy_count:GetInt()
         local steal_chance = sibling_steal_chance:GetFloat()
+        local is_copy_mode = IsCopyMode(share_mode)
+        local is_steal_mode = IsStealMode(share_mode)
         local stolen = false
         for _, p in PlayerIterator() do
             if not IsPlayer(p) then return end
@@ -181,7 +204,16 @@ if SERVER then
             local target_sid64 = p.TTTSiblingTarget
             if target_sid64 ~= ply:SteamID64() then continue end
 
-            if copy_count > 0 and p.TTTSiblingCopyCount >= copy_count then continue end
+            -- Don't copy too many times
+            if is_copy_mode and copy_count > 0 and p.TTTSiblingCopyCount >= copy_count then continue end
+
+            -- Check if this should be stolen
+            if is_steal_mode and not stolen and steal_chance > 0 and MathRandom() < steal_chance then
+                stolen = true
+            end
+
+            -- If we're not copying and this wasn't stolen then don't actually give the sibling the item
+            if not is_copy_mode and not stolen then continue end
 
             -- Give the sibling a copy of the item that was bought, if they can hold it
             if is_item then
@@ -198,12 +230,10 @@ if SERVER then
                 end
             end
 
-            p.TTTSiblingCopyCount = p.TTTSiblingCopyCount + 1
-            CallShopHooks(is_item, item, p)
-
-            if steal_chance > 0 and not stolen and MathRandom() < steal_chance then
-                stolen = true
+            if is_copy_mode then
+                p.TTTSiblingCopyCount = p.TTTSiblingCopyCount + 1
             end
+            CallShopHooks(is_item, item, p)
         end
 
         if stolen then
