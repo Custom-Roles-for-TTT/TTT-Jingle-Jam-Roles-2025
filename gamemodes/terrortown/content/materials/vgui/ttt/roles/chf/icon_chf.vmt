@@ -1,6 +1,6 @@
 "UnlitGeneric"
 {
-	"$basetexture" "vgui/ttt/roles/chf/icon_chf
+	"$basetexture" "vgui/ttt/roles/chf/icon_chf"
 	"$vertexcolor" 1
 	"$vertexalpha" 1
 	"$translucent" 1
