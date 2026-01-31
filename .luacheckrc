@@ -1272,6 +1272,7 @@ globals = {
     "ROLE_CHEF",
     "ROLE_PINATA",
     "ROLE_RANDOSWAPPER",
+    "ROLE_SIBLING",
     "WIN_PINATA"
 }
 std = {

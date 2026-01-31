@@ -277,7 +277,7 @@ AddHook("TTTCupidShouldLoverSurvive", "Randoswapper_TTTCupidShouldLoverSurvive",
     end
 end)
 
-AddHook("TTTPrepareRound", "Randoswapper_PrepareRound", function()
+AddHook("TTTPrepareRound", "Randoswapper_TTTPrepareRound", function()
     swapCount = 0
     for _, v in PlayerIterator() do
         v:SetNWString("RandoswappedWith", "")
