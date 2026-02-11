@@ -33,6 +33,23 @@ ttt_chef_burnt_interval   1   // How often the burnt food eater's health should 
 ttt_chef_burnt_amount     1   // The amount of the burnt food eater's health to remove per interval
 ```
 
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/cln/tab_cln.png) Clone
+_Suggested By_: BoboMcGraw\
+The Clone is a Jester role that chooses a player to become a clone of and then wins with that player's team.
+\
+\
+**ConVars**
+```cpp
+ttt_clone_enabled           0   // Whether or not a Clone should spawn
+ttt_clone_spawn_weight      1   // The weight assigned to spawning a Clone
+ttt_clone_min_players       0   // The minimum number of players required to spawn a Clone
+ttt_clone_starting_health   100 // The amount of health a Clone starts with
+ttt_clone_max_health        100 // The maximum amount of health a Clone can have
+ttt_clone_perfect_clone     0   // Whether the Clone copies their target's model perfectly. If "false", some aspect of the clone will be wrong (such as skin, bodygroup, size, etc.)
+ttt_clone_target_detectives 0   // Whether the Clone can target detective roles
+ttt_clone_minimum_radius    5   // The minimum radius of the Clone's device in meters. Set to 0 to disable
+```
+
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/pin/tab_pin.png) Piñata
 _Suggested By_: detection.exe\
 The Piñata is an Independent role that drops shop weapons on an interval based on how much damage they take. They also cannot damage another player unless they are damaged by them first.
@@ -99,3 +116,4 @@ ttt_sibling_target_traitors     1   // Whether the sibling's target can be a tra
 
 # Special Thanks
 - [Game icons](https://game-icons.net/) for the role icons
+- [The Stig](https://steamcommunity.com/id/The-Stig-294) for the code used to shrink imperfect clones
