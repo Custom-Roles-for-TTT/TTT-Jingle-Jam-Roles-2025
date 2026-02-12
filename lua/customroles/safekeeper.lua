@@ -249,11 +249,17 @@ if CLIENT then
     ----------------------
 
     AddHook("PreDrawHalos", "Safekeeper_Highlight_PreDrawHalos", function()
-        local targets = {}
+        if not client then
+            client = LocalPlayer()
+        end
 
+        local targets = {}
         for _, e in ipairs(EntsFindByClass("ttt_safekeeper_safe")) do
             if not IsValid(e) then continue end
-            if e.TTTSafekeeperSafeRevealed then
+
+            local placer = e:GetPlacer()
+            -- Show the safe to everyone if it's revealed, or just the placer if it isn't
+            if e.TTTSafekeeperSafeRevealed or (IsPlayer(placer) and client == placer) then
                 TableInsert(targets, e)
             end
         end
