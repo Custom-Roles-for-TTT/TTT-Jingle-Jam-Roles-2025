@@ -1,6 +1,7 @@
 local ents = ents
 local hook = hook
 local math = math
+local net = net
 local player = player
 local surface = surface
 local table = table
@@ -55,6 +56,8 @@ local safekeeper_pick_time = CreateConVar("ttt_safekeeper_pick_time", "30", FCVA
 
 if SERVER then
     AddCSLuaFile()
+
+    util.AddNetworkString("TTT_SafekeeperPlaySound")
 
     local safekeeper_pick_grace_time = CreateConVar("ttt_safekeeper_pick_grace_time", 0.25, FCVAR_NONE, "How long (in seconds) before the pick progress of a safe is reset when a player stops looking at it", 0, 1)
     local safekeeper_warmup_time_min = CreateConVar("ttt_safekeeper_warmup_time_min", "30", FCVAR_NONE, "Minimum time (in seconds) before the Safekeeper will be given their safe", 1, 60)
@@ -234,6 +237,11 @@ if CLIENT then
         local y = ScrH() / 2
         local w = 300
         CRHUD:PaintProgressBar(x, y, w, COLOR_GREEN, text, progress)
+    end)
+
+    net.Receive("TTT_SafekeeperPlaySound", function()
+        local soundType = net.ReadString()
+        surface.PlaySound("safekeeper/" .. soundType .. ".mp3")
     end)
 
     ----------------------
