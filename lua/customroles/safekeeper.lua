@@ -1,3 +1,6 @@
+local hook = hook
+
+local AddHook = hook.Add
 
 local ROLE = {}
 
@@ -75,9 +78,7 @@ if SERVER then
             -- TODO: Sound?
         end
 
-        pickTarget:SetPlacer(nil)
-        pickTarget:Remove()
-        -- TODO: Spawn weapons
+        pickTarget:Open(ply)
     end)
 end
 

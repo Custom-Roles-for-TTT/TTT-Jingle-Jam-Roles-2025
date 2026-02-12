@@ -119,6 +119,15 @@ if SERVER then
         activator.SafekeeperLastPickTime = curTime
     end
 
+    function ENT:Open(opener)
+        if not IsPlayer(opener) then return end
+        if not opener:Alive() or opener:IsSpec() then return end
+
+        self:SetOpen(true)
+        -- TODO: Change to model "Base1" Submodel 1? Maybe bodygroups?
+        -- TODO: Spawn weapons
+    end
+
     -- Copied from C4
     function ENT:WeldToGround(state)
         if state then
