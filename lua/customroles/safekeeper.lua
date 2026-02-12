@@ -56,7 +56,6 @@ local safekeeper_pick_time = CreateConVar("ttt_safekeeper_pick_time", "30", FCVA
 if SERVER then
     AddCSLuaFile()
 
-    local safekeeper_warn_pick_complete = CreateConVar("ttt_safekeeper_warn_pick_complete", "1", FCVAR_NONE, "Whether to warn an safe's owner is warned when it is picked", 0, 1)
     local safekeeper_pick_grace_time = CreateConVar("ttt_safekeeper_pick_grace_time", 0.25, FCVAR_NONE, "How long (in seconds) before the pick progress of a safe is reset when a player stops looking at it", 0, 1)
     local safekeeper_warmup_time_min = CreateConVar("ttt_safekeeper_warmup_time_min", "30", FCVAR_NONE, "Minimum time (in seconds) before the Safekeeper will be given their safe", 1, 60)
     local safekeeper_warmup_time_max = CreateConVar("ttt_safekeeper_warmup_time_max", "60", FCVAR_NONE, "Maximum time (in seconds) before the Safekeeper will be given their safe", 1, 120)
@@ -87,12 +86,6 @@ if SERVER then
 
         -- If they haven't used this item long enough then keep waiting
         if curTime - pickStart < safekeeper_pick_time:GetInt() then return end
-
-        local placer = pickTarget:GetPlacer()
-        if IsPlayer(placer) and safekeeper_warn_pick_complete:GetBool() then
-            placer:QueueMessage(MSG_PRINTBOTH, "Your safe has been picked!")
-            -- TODO: Sound?
-        end
 
         pickTarget:Open(ply)
     end)
@@ -169,7 +162,14 @@ if SERVER then
         local safe = Entity(safeEntIdx)
         if not IsValid(safe) then return end
 
-        -- TODO: Show message?
+        -- Tell all the other players about the safe
+        for _, v in PlayerIterator() do
+            if v == deadply then
+                v:QueueMessage(MSG_PRINTBOTH, "Your body has been found, revealing your safe to everyone")
+            else
+                v:QueueMessage(MSG_PRINTBOTH, "A " .. ROLE_STRINGS[ROLE_SAFEKEEPER] .. "'s body has been found and their safe's location has been revealed!")
+            end
+        end
         safe:SetProperty("TTTSafekeeperSafeRevealed", true)
     end)
 

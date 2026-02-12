@@ -2,10 +2,21 @@ if SERVER then
     AddCSLuaFile()
 end
 
+local ents = ents
+local ipairs = ipairs
+local math = math
 local table = table
+local timer = timer
+
+local CreateEntity = ents.Create
+local MathRandom = math.random
+local MathRand = math.Rand
+local TableInsert = table.insert
+local TableRemove = table.remove
 
 local safekeeper_move_safe = CreateConVar("ttt_safekeeper_move_safe", "1", FCVAR_REPLICATED, "Whether an Safekeeper can move their safe", 0, 1)
 local safekeeper_move_cooldown = CreateConVar("ttt_safekeeper_move_cooldown", "30", FCVAR_REPLICATED, "How long a Safekeeper must wait after placing their safe before they can move it again", 0, 120)
+local safekeeper_weapons_dropped = CreateConVar("ttt_lootgoblin_weapons_dropped", "8", FCVAR_NONE, "How many weapons the Safekeeper's safe drops when it is picked open", 0, 10)
 
 if CLIENT then
     local hint_params = {usekey = Key("+use", "USE")}
@@ -97,6 +108,7 @@ end
 
 if SERVER then
     local safekeeper_warn_pick_start = CreateConVar("ttt_safekeeper_warn_pick_start", "1", FCVAR_NONE, "Whether to warn an safe's owner is warned when someone starts picking it", 0, 1)
+    local safekeeper_warn_pick_complete = CreateConVar("ttt_safekeeper_warn_pick_complete", "1", FCVAR_NONE, "Whether to warn an safe's owner is warned when it is picked", 0, 1)
 
     function ENT:Use(activator)
         if self:GetOpen() then return end
@@ -137,13 +149,55 @@ if SERVER then
         if not IsPlayer(opener) then return end
         if not opener:Alive() or opener:IsSpec() then return end
 
+        local placer = self:GetPlacer()
+        if IsPlayer(placer) and safekeeper_warn_pick_complete:GetBool() then
+            placer:QueueMessage(MSG_PRINTBOTH, "Your safe has been picked!")
+            -- TODO: Sound?
+        end
+
         self:SetOpen(true)
         -- Change to model "Base1" Submodel 1 to show the door as open
         local boneId = self:FindBodygroupByName("Base1")
         if boneId >= 0 then
             self:SetBodygroup(boneId, 1)
         end
-        -- TODO: Spawn weapons
+
+        local lootTable = {}
+        local safe = self
+        timer.Create("SafekeeperSafeWeaponDrop_" .. self:EntIndex(), 0.05, safekeeper_weapons_dropped:GetInt(), function()
+            if not IsValid(safe) then return end
+
+            if #lootTable == 0 then -- Rebuild the loot table if we run out
+                for _, v in ipairs(weapons.GetList()) do
+                    if v and not v.AutoSpawnable and v.CanBuy and #v.CanBuy > 0 and v.AllowDrop then
+                        TableInsert(lootTable, WEPS.GetClass(v))
+                    end
+                end
+            end
+
+            local idx = MathRandom(1, #lootTable)
+            local wep = lootTable[idx]
+            TableRemove(lootTable, idx)
+
+            -- Make the weapons spawn in front of the safe based on the direction it's facing
+            local ang = safe:GetAngles()
+            -- Rotate the angle to reflect which side is actually the front
+            ang:RotateAroundAxis(Vector(0, 0, 1), 90)
+            -- Push it forward so it looks they are coming out of the door
+            local pos = safe:GetPos() + ang:Forward() * -10
+            local ent = CreateEntity(wep)
+            ent:SetPos(pos)
+            ent:Spawn()
+
+            local phys = ent:GetPhysicsObject()
+            if IsValid(phys) then
+                phys:ApplyForceCenter(Vector(MathRand(-5, 5), MathRand(-5, 5), 25) * phys:GetMass())
+            end
+        end)
+    end
+
+    function ENT:OnRemove()
+        timer.Remove("SafekeeperSafeWeaponDrop_" .. self:EntIndex())
     end
 
     -- Copied from C4
@@ -152,7 +206,7 @@ if SERVER then
            -- getgroundentity does not work for non-players
            -- so sweep ent downward to find what we're lying on
            local ignore = player.GetAll()
-           table.insert(ignore, self)
+           TableInsert(ignore, self)
 
            local tr = util.TraceEntity({ start = self:GetPos(), endpos = self:GetPos() - Vector(0, 0, 16), filter = ignore, mask = MASK_SOLID }, self)
 

@@ -133,12 +133,12 @@ function SWEP:PrimaryAttack()
     local ang = Angle(0, eyeAngles.y, 0)
     ang:RotateAroundAxis(Vector(0, 0, 1), 90)
 
-    -- TODO: Move this further away from the player or make it not based on their aim, just where they are looking
-    local offset = owner:GetAimVector() * 15
-    offset.z = -5
+    -- Drop the safe in front of the player
+    local offset = owner:GetShootPos() + eyeAngles:Forward() * 50
+    offset.z = owner:GetPos().z + 5
 
     -- Spawn the safe
-    safe:SetPos(owner:GetPos() - offset)
+    safe:SetPos(offset)
     safe:SetAngles(ang)
     safe:SetPlacer(owner)
     safe:Spawn()
