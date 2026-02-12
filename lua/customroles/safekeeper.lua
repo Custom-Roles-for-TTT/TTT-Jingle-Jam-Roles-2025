@@ -21,8 +21,12 @@ ROLE.nameext = "a Safekeeper"
 ROLE.nameshort = "sfk"
 
 ROLE.desc = [[You are {role}!
-]]
-ROLE.shortdesc = ""
+
+Place your safe somewhere on the map
+and keep it defended.
+If it remains unopened by the end
+of the round, you win!]]
+ROLE.shortdesc = "Places a safe that they must defend from being picked open for the rest of the round"
 
 ROLE.team = ROLE_TEAM_INDEPENDENT
 
@@ -371,6 +375,42 @@ if CLIENT then
 
         -- Track that the label was added so others can position accurately
         TableInsert(active_labels, "safekeeper")
+    end)
+
+    --------------
+    -- TUTORIAL --
+    --------------
+
+    AddHook("TTTTutorialRoleText", "Safekeeper_TTTTutorialRoleText", function(role, titleLabel)
+        if role == ROLE_SAFEKEEPER then
+            local roleColor = GetRoleTeamColor(ROLE_TEAM_INDEPENDENT)
+            local html = "The " .. ROLE_STRINGS[ROLE_SAFEKEEPER] .. " is an <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>independent</span> role that is given a safe after a random delay to place somewhere on the map."
+
+            -- Win condition
+            html = html .. "<span style='display: block; margin-top: 10px;'>To win, the " .. ROLE_STRINGS[ROLE_SAFEKEEPER] .. " must place their safe and it <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>must remain unpicked</span> for the rest of the round.</span>"
+
+            -- TODO: Alternate win condition, if it is added
+
+            -- Auto-drop
+            html = html .. "<span style='display: block; margin-top: 10px;'>The safe is quite heavy and so it <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>will automatically drop</span> if the " .. ROLE_STRINGS[ROLE_SAFEKEEPER] .. " holds it for too long, tries to switch weapons, or is killed.</span>"
+
+            -- Move
+            local move_safe = cvars.Bool("ttt_safekeeper_move_safe", false)
+            if move_safe then
+                html = html .. "<span style='display: block; margin-top: 10px;'>The " .. ROLE_STRINGS[ROLE_SAFEKEEPER] .. "'s safe <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>can be moved</span> by the " .. ROLE_STRINGS[ROLE_SAFEKEEPER]
+                -- Move delay
+                local move_cooldown = GetConVar("ttt_safekeeper_move_cooldown"):GetInt()
+                if move_cooldown > 0 then
+                    html = html .. " once every " .. move_cooldown .. " second(s)"
+                end
+                html = html .. ".</span>"
+            end
+
+            -- Pick time
+            html = html .. "<span style='display: block; margin-top: 10px;'>The safe is full of shop weapons and other players can spend " .. safekeeper_pick_time:GetInt() .. " second(s) of continuous focus <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>to pick it open</span> and spill its loot on the ground.</span>"
+
+            return html
+        end
     end)
 end
 
