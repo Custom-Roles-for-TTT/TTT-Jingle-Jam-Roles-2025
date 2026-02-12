@@ -131,10 +131,10 @@ function SWEP:PrimaryAttack()
     local eyeAngles = owner:EyeAngles()
     local startPos = owner:GetPos() + eyeAngles:Forward() * 55
     -- Find a location to drop the safe in front of the player
-	local tr = util.TraceLine({
-		start = startPos,
-		endpos = startPos + eyeAngles:Up() * -10000
-	})
+    local tr = util.TraceLine({
+        start = startPos,
+        endpos = startPos + eyeAngles:Up() * -10000
+    })
 
     -- If we didn't find the world, somehow, just throw it from the start position and see what happens
     local safePos
