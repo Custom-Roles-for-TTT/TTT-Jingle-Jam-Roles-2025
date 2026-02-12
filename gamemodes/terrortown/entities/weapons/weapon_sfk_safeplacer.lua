@@ -134,7 +134,7 @@ function SWEP:PrimaryAttack()
     ang:RotateAroundAxis(Vector(0, 0, 1), 90)
 
     -- Drop the safe in front of the player
-    local offset = owner:GetShootPos() + eyeAngles:Forward() * 50
+    local offset = owner:GetShootPos() + eyeAngles:Forward() * 55
     offset.z = owner:GetPos().z + 5
 
     -- Spawn the safe
