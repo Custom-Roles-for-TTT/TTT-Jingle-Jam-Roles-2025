@@ -65,6 +65,8 @@ local pinata_damage_interval = CreateConVar("ttt_pinata_damage_interval", "20", 
 local pinata_announce = CreateConVar("ttt_pinata_announce", "1", FCVAR_REPLICATED, "Whether to announce to everyone that there is a piñata in the round", 0, 1)
 
 if SERVER then
+    AddCSLuaFile()
+
     -------------------
     -- ROLE FEATURES --
     -------------------

@@ -217,6 +217,8 @@ if SERVER then
 end
 
 if CLIENT then
+    AddCSLuaFile()
+
     -------------------
     -- ROLE FEATURES --
     -------------------
