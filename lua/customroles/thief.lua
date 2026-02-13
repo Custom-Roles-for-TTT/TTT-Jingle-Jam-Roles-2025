@@ -21,8 +21,8 @@ ROLE.nameext = "a Thief"
 ROLE.nameshort = "thf"
 
 ROLE.desc = [[You are {role}!
-]]
-ROLE.shortdesc = ""
+TODO]]
+ROLE.shortdesc = "TODO"
 
 ROLE.team = ROLE_TEAM_INDEPENDENT
 
@@ -35,6 +35,57 @@ ROLE.convars =
     {
         cvar = "ttt_thief_is_traitor",
         type = ROLE_CONVAR_TYPE_BOOL
+    },
+    {
+        cvar = "ttt_thief_steal_mode",
+        type = ROLE_CONVAR_TYPE_DROPDOWN,
+        choices = {"Proximity-based", "Using Thieves' Tools"},
+        isNumeric = true,
+        numericOffset = 0
+    },
+    {
+        cvar = "ttt_thief_steal_success_cooldown",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_thief_steal_failure_cooldown",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_thief_steal_cost",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_thief_steal_notify_delay_min",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_thief_steal_notify_delay_max",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_thief_steal_proximity_time",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_thief_steal_proximity_float_time",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_thief_steal_proximity_require_los",
+        type = ROLE_CONVAR_TYPE_BOOL
+    },
+    {
+        cvar = "ttt_thief_steal_proximity_distance",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
     }
 }
 
@@ -71,7 +122,7 @@ local thief_steal_success_cooldown = CreateConVar("ttt_thief_steal_success_coold
 local thief_steal_cost = CreateConVar("ttt_thief_steal_cost", "0", FCVAR_REPLICATED, "Whether stealing a weapon from a player requires a credit. Enables credit looting for innocent and independent Thieves on new round", 0, 1)
 local thief_steal_notify_delay_min = CreateConVar("ttt_thief_steal_notify_delay_min", "10", FCVAR_REPLICATED, "The minimum delay before a player is notified they've been robbed. Set to \"0\" to disable notifications", 0, 30)
 local thief_steal_notify_delay_max = CreateConVar("ttt_thief_steal_notify_delay_max", "30", FCVAR_REPLICATED, "The maximum delay before a player is notified they've been robbed", 3, 60)
-local thief_steal_proximity_time = CreateConVar("ttt_thief_steal_proximity_time", "15", FCVAR_REPLICATED, "How long (in seconds) it takes the Thief to steal something from a target. Only used when \"ttt_thief_steal_mode 0\" is set")
+local thief_steal_proximity_time = CreateConVar("ttt_thief_steal_proximity_time", "15", FCVAR_REPLICATED, "How long (in seconds) it takes the Thief to steal something from a target. Only used when \"ttt_thief_steal_mode 0\" is set", 1, 60)
 
 -------------------
 -- ROLE FEATURES --
@@ -91,6 +142,9 @@ AddHook("TTTUpdateRoleState", "Thief_TTTUpdateRoleState", function()
 end)
 
 if SERVER then
+    local plymeta = FindMetaTable("Player")
+    if not plymeta then return end
+
     AddCSLuaFile()
 
     util.AddNetworkString("TTT_ThiefItemStolen")
@@ -99,18 +153,55 @@ if SERVER then
     -- ROLE CONVARS --
     ------------------
 
-    local thief_steal_mode = CreateConVar("ttt_thief_steal_mode", "0", FCVAR_NONE, "How stealing a weapon from a player works. 0 - Steal automatically when in proximity. 1 - Steal using they Thieves Tools", 0, 1)
+    local thief_steal_mode = CreateConVar("ttt_thief_steal_mode", "0", FCVAR_NONE, "How stealing a weapon from a player works. 0 - Steal automatically when in proximity. 1 - Steal using their Thieves' Tools", 0, 1)
     local thief_steal_failure_cooldown = CreateConVar("ttt_thief_steal_failure_cooldown", "3", FCVAR_NONE, "How long (in seconds) after the Thief loses their target before they can try to steal another thing", 0, 60)
     local thief_steal_proximity_float_time = CreateConVar("ttt_thief_steal_proximity_float_time", "3", FCVAR_NONE, "The amount of time (in seconds) it takes for the Thief to lose their target after getting out of range. Only used when \"ttt_thief_steal_mode 0\" is set", 0, 60)
     local thief_steal_proximity_require_los = CreateConVar("ttt_thief_steal_proximity_require_los", "1", FCVAR_NONE, "Whether the Thief requires line-of-sight to steal something. Only used when \"ttt_thief_steal_mode 0\" is set", 0, 1)
-    local thief_steal_proximity_distance = CreateConVar("ttt_thief_steal_proximity_distance", "5", FCVAR_NONE, "How close (in meters) the Thief needs to be to their target to start stealing. Only used when \"ttt_thief_steal_mode 0\" is set")
+    local thief_steal_proximity_distance = CreateConVar("ttt_thief_steal_proximity_distance", "5", FCVAR_NONE, "How close (in meters) the Thief needs to be to their target to start stealing. Only used when \"ttt_thief_steal_mode 0\" is set", 1, 15)
 
     -------------------
     -- ROLE FEATURES --
     -------------------
 
+    function plymeta:ThiefSteal(target)
+        if not self:Alive() or self:IsSpec() then return end
+        if not IsPlayer(target) then return end
+        if not target:Alive() or target:IsSpec() then return end
+
+        -- TODO: Steal a weapon and set the property on the weapon so the thief can get it
+        local item = "something"
+
+        -- TODO: Notify the thief
+
+        self:SetProperty("TTTThiefStealStartTime", CurTime(), self)
+        self:SetProperty("TTTThiefStealState", THIEF_STEAL_STATE_COOLDOWN, self)
+
+        net.Start("TTT_ThiefItemStolen")
+            net.WriteString(self:Nick())
+            net.WriteString(target:Nick())
+            net.WriteString(item)
+        net.Broadcast()
+
+        local steal_notify_delay_min = thief_steal_notify_delay_min:GetInt()
+        local steal_notify_delay_max = thief_steal_notify_delay_max:GetInt()
+        if steal_notify_delay_min > steal_notify_delay_max then
+            steal_notify_delay_max = steal_notify_delay_max
+        end
+
+        -- Send message (after a random delay) that this player has been robbed, but only if it's enabled
+        if steal_notify_delay_min <= 0 then return end
+
+        local delay = MathRandom(steal_notify_delay_max, steal_notify_delay_max)
+        timer.Create("TTTThiefNotifyDelay_" .. target:SteamID64(), delay, 1, function()
+            if not IsPlayer(target) then return end
+            if not target:Alive() or target:IsSpec() then return end
+
+            local message = "You have been been robbed by the " .. ROLE_STRINGS[ROLE_THIEF] .. "!"
+            target:QueueMessage(MSG_PRINTBOTH, message)
+        end)
+    end
+
     AddHook("TTTPlayerAliveThink", "Thief_TTTPlayerAliveThink_Steal", function(ply)
-        if thief_steal_mode:GetInt() ~= THIEF_STEAL_MODE_PROXIMITY then return end
         if not ply:IsThief() then return end
         if ply.TTTThiefDisabled then return end
 
@@ -139,6 +230,21 @@ if SERVER then
             return
         end
 
+        local curTime = CurTime()
+        local state = ply.TTTThiefStealState or THIEF_STEAL_STATE_IDLE
+
+        -- Keep track of the success cooldown
+        if state == THIEF_STEAL_STATE_COOLDOWN then
+            local steal_success_cooldown = thief_steal_success_cooldown:GetInt()
+            if curTime - (startTime + steal_success_cooldown) >= 0 then
+                ply:ClearProperty("TTTThiefStealStartTime", ply)
+                ply:SetProperty("TTTThiefStealState", THIEF_STEAL_STATE_IDLE, ply)
+            end
+            return
+        end
+
+        if thief_steal_mode:GetInt() ~= THIEF_STEAL_MODE_PROXIMITY then return end
+
         local proximity_require_los = thief_steal_proximity_require_los:GetBool()
         local proximity_distance = thief_steal_proximity_distance:GetFloat() * UNITS_PER_METER
         local proxyDistanceSqr = proximity_distance * proximity_distance
@@ -162,19 +268,6 @@ if SERVER then
 
             if IsPlayer(closestPly) then
                 ply:SetProperty("TTTThiefStealTarget", closestPly:SteamID64(), ply)
-            end
-            return
-        end
-
-        local curTime = CurTime()
-        local state = ply.TTTThiefStealState or THIEF_STEAL_STATE_IDLE
-
-        -- Keep track of the success cooldown
-        if state == THIEF_STEAL_STATE_COOLDOWN then
-            local steal_success_cooldown = thief_steal_success_cooldown:GetInt()
-            if curTime - (startTime + steal_success_cooldown) >= 0 then
-                ply:ClearProperty("TTTThiefStealStartTime", ply)
-                ply:SetProperty("TTTThiefStealState", THIEF_STEAL_STATE_IDLE, ply)
             end
             return
         end
@@ -234,29 +327,7 @@ if SERVER then
             if curTime - startTime > proximity_time then
                 ply:ClearProperty("TTTThiefStealTarget", ply)
                 ply:ClearProperty("TTTThiefStealLostTime", ply)
-                ply:SetProperty("TTTThiefStealStartTime", curTime, ply)
-                ply:SetProperty("TTTThiefStealState", THIEF_STEAL_STATE_COOLDOWN, ply)
-
-                local steal_notify_delay_min = thief_steal_notify_delay_min:GetInt()
-                local steal_notify_delay_max = thief_steal_notify_delay_max:GetInt()
-                if steal_notify_delay_min > steal_notify_delay_max then
-                    steal_notify_delay_max = steal_notify_delay_max
-                end
-
-                -- TODO: Steal a weapon somehow, set the property on the weapon so the thief can get it, start the cooldown, and send the net method
-                print(ply, "stole from", target)
-
-                -- Send message (after a random delay) that this player has been doused, but only if it's enabled
-                if steal_notify_delay_min > 0 then
-                    local delay = MathRandom(steal_notify_delay_max, steal_notify_delay_max)
-                    timer.Create("TTTThiefNotifyDelay_" .. targetSid64, delay, 1, function()
-                        if not IsPlayer(target) then return end
-                        if not target:Alive() or target:IsSpec() then return end
-
-                        local message = "You have been been robbed by the " .. ROLE_STRINGS[ROLE_THIEF] .. "!"
-                        target:QueueMessage(MSG_PRINTBOTH, message)
-                    end)
-                end
+                ply:ThiefSteal(target)
             end
         end
     end)
@@ -347,6 +418,7 @@ if CLIENT then
 
     local hide_role = GetConVar("ttt_hide_role")
 
+    local client
     AddHook("HUDPaint", "Thief_HUDPaint", function()
         if not client then
             client = LocalPlayer()
