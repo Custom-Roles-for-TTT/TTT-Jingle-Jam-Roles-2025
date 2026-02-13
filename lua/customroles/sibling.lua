@@ -104,6 +104,8 @@ local sibling_target_jesters = CreateConVar("ttt_sibling_target_jesters", "1", F
 local sibling_target_monsters = CreateConVar("ttt_sibling_target_monsters", "1", FCVAR_REPLICATED, "Whether the sibling's target can be a monster role", 0, 1)
 
 if SERVER then
+    AddCSLuaFile()
+
     -------------------
     -- ROLE FEATURES --
     -------------------
