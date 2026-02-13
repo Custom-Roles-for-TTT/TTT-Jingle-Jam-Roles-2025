@@ -187,6 +187,7 @@ if SERVER then
     ROLE.onroleassigned = function(ply)
         -- Use a slight delay to make sure nothing else is changing this player's role first
         timer.Simple(0.25, function()
+            if not IsPlayer(ply) then return end
             AssignTarget(ply)
         end)
     end
