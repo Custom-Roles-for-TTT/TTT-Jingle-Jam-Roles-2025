@@ -134,3 +134,5 @@ ttt_sibling_target_traitors     1   // Whether the sibling's target can be a tra
   - Licensed as [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 - [Famoso](https://steamcommunity.com/profiles/76561198308951372) for the GMod version of the [safe model](https://steamcommunity.com/sharedfiles/filedetails/?id=3030515670) for the Safekeeper
 - [GFXSounds.com](https://gfxsounds.com) for the picking and opening sounds used for the Safekeeper's safe
+  - [Safe lock, vault, opening mechanism 6](https://gfxsounds.com/sound-effect/safe-lock-vault-opening-mechanism-6/)
+  - [Safe vault, dial lock, turning click 6](https://gfxsounds.com/sound-effect/safe-vault-dial-lock-turning-click-6/)
