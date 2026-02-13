@@ -375,7 +375,13 @@ if CLIENT then
         if ent:ShouldActLikeJester() then return end
         if cli:IsRoleAbilityDisabled() then return end
 
-        return LANG.GetTranslation("safekeeper_target_looter"), ROLE_COLORS_RADAR[ROLE_SAFEKEEPER], secondary_text
+        -- Don't overwrite text
+        if text then
+            -- Don't overwrite secondary text either
+            if secondary_text then return end
+            return text, col, LANG.GetTranslation("safekeeper_target_looter"), ROLE_COLORS_RADAR[ROLE_SAFEKEEPER]
+        end
+        return LANG.GetTranslation("safekeeper_target_looter"), ROLE_COLORS_RADAR[ROLE_SAFEKEEPER]
     end)
 
     ROLE.istargetidoverridden = function(ply, target, showJester)
