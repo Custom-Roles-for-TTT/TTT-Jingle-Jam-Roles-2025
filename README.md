@@ -5,7 +5,7 @@ A pack of [Custom Roles for TTT](https://github.com/Custom-Roles-for-TTT/TTT-Cus
 
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/chf/tab_chf.png) Chef
 _Suggested By_: Sparth\
-The Chef is an Special Innocent role that cooks a chosen food for other players which provides a buff (or, if burnt, causes damage).
+The Chef is a Special Innocent role that cooks a chosen food for other players which provides a buff (or, if burnt, causes damage).
 \
 \
 **ConVars**
@@ -94,7 +94,33 @@ ttt_sibling_target_independents 1   // Whether the sibling's target can be an in
 ttt_sibling_target_innocents    1   // Whether the sibling's target can be an innocent role (not including detectives)
 ttt_sibling_target_jesters      1   // Whether the sibling's target can be a jester role
 ttt_sibling_target_traitors     1   // Whether the sibling's target can be a traitor role
+```
 
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/thf/tab_thf.png) Thief
+_Suggested By_: Goatylicious\
+The Sibling is an Independent role (that can be made into a Special Innocent or Special Traitor) that can only get weapons by stealing from other players.
+\
+\
+**ConVars**
+```cpp
+ttt_thief_enabled                     0   // Whether or not a Thief should spawn
+ttt_thief_spawn_weight                1   // The weight assigned to spawning a Thief
+ttt_thief_min_players                 0   // The minimum number of players required to spawn a Thief
+ttt_thief_starting_health             100 // The amount of health a Thief starts with
+ttt_thief_max_health                  100 // The maximum amount of health a Thief can have
+ttt_thief_respawn_health              100 // What amount of health to give the Thief when they are killed and respawned
+ttt_thief_is_innocent                 0   // Whether the Thief should be on the innocent team
+ttt_thief_is_traitor                  0   // Whether the Thief should be on the traitor team
+ttt_thief_steal_cost                  0   // Whether stealing a weapon from a player requires a credit. Enables credit looting for innocent and independent Thieves on new round
+ttt_thief_steal_failure_cooldown      3   // How long (in seconds) after the Thief loses their target before they can try to steal another thing
+ttt_thief_steal_success_cooldown      30  // How long (in seconds) after the Thief steals something before they can try to steal another thing
+ttt_thief_steal_mode                  0   // How stealing a weapon from a player works. 0 - Steal automatically when in proximity. 1 - Steal using their Thieves' Tools
+ttt_thief_steal_notify_delay_min      10  // The minimum delay before a player is notified they've been robbed. Set to "0" to disable notifications
+ttt_thief_steal_notify_delay_max      30  // The maximum delay before a player is notified they've been robbed
+ttt_thief_steal_proximity_distance    5   // How close (in meters) the Thief needs to be to their target to start stealing. Only used when "ttt_thief_steal_mode 0" is set
+ttt_thief_steal_proximity_float_time  3   // The amount of time (in seconds) it takes for the Thief to lose their target after getting out of range. Only used when "ttt_thief_steal_mode 0" is set
+ttt_thief_steal_proximity_require_los 1   // Whether the Thief requires line-of-sight to steal something. Only used when "ttt_thief_steal_mode 0" is set
+ttt_thief_steal_proximity_time        15  // How long (in seconds) it takes the Thief to steal something from a target. Only used when "ttt_thief_steal_mode 0" is set
 ```
 
 # Special Thanks
