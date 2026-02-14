@@ -422,7 +422,11 @@ if SERVER then
                     if activeWep == w then
                         activeWep = nil
                         timer.Simple(0.25, function()
-                            ply:SelectWeapon("weapon_zm_carry")
+                            if thief_steal_mode:GetInt() == THIEF_STEAL_MODE_TOOLS then
+                                ply:SelectWeapon("weapon_thf_thievestools")
+                            else
+                                ply:SelectWeapon("weapon_zm_carry")
+                            end
                         end)
                     end
                     ply:StripWeapon(wepClass)
