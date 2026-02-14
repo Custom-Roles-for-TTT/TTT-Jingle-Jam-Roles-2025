@@ -215,7 +215,8 @@ function SWEP:OnRemove()
         SafeRemoveEntity(self.GhostEnt)
         self.GhostEnt = nil
 
-        if IsValid(self:GetOwner()) and self:GetOwner() == LocalPlayer() and self:GetOwner():Alive() then
+        local owner = self:GetOwner()
+        if IsValid(owner) and owner == LocalPlayer() and owner:Alive() then
             RunConsoleCommand("lastinv")
         end
     end
