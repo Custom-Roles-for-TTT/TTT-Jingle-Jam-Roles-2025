@@ -174,8 +174,6 @@ if SERVER then
     -- ROLE FEATURES --
     -------------------
 
-    -- TODO: Weapon for mode == 0
-
     local allowedWeaponClasses = {"weapon_ttt_unarmed", "weapon_zm_carry", "weapon_thf_thievestools"}
 
     AddHook("Initialize", "Thief_Initialize", function()
@@ -190,8 +188,27 @@ if SERVER then
 
         local curTime = CurTime()
 
-        -- TODO: Steal a weapon and set the property on the weapon so the thief can get it
-        local item = "something"
+        -- Find a weapon for the thief to steal
+        local items = {}
+        for _, w in ipairs(target:GetWeapons()) do
+            -- Don't try to steal melee weapons
+            if w.Kind == WEAPON_MELEE then continue end
+
+            -- Or weapons they already have
+            local wepClass = WEAPS.GetClass(w)
+            if self:HasWeapon(wepClass) then continue end
+
+            -- Or weapons that they can't carry because something is already in that slot
+            if not self:CanCarryType(w.kind) then continue end
+
+            TableInsert(items, w)
+        end
+
+        local item
+        -- Choose a random item from the list
+        if #items > 0 then
+            item = items[MathRandom(#items)]
+        end
 
         -- If no valid weapons are found, set to "LOST" state for the quick reset
         -- And tell them why it failed
@@ -204,6 +221,8 @@ if SERVER then
             self:QueueMessage(MSG_PRINTCENTER, target:Nick() .. " has nothing worth stealing, try someone else!")
             return
         end
+
+        -- TODO: Steal the weapon and set the property on the weapon so the thief can get it
 
         if thief_steal_cost:GetBool() then
             self:SubtractCredits(1)
