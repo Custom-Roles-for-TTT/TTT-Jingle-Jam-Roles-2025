@@ -5,7 +5,7 @@ A pack of [Custom Roles for TTT](https://github.com/Custom-Roles-for-TTT/TTT-Cus
 
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/chf/tab_chf.png) Chef
 _Suggested By_: Sparth\
-The Chef is an Special Innocent role that cooks a chosen food for other players which provides a buff (or, if burnt, causes damage).
+The Chef is a Special Innocent role that cooks a chosen food for other players which provides a buff (or, if burnt, causes damage).
 \
 \
 **ConVars**
@@ -94,7 +94,6 @@ ttt_sibling_target_independents 1   // Whether the sibling's target can be an in
 ttt_sibling_target_innocents    1   // Whether the sibling's target can be an innocent role (not including detectives)
 ttt_sibling_target_jesters      1   // Whether the sibling's target can be a jester role
 ttt_sibling_target_traitors     1   // Whether the sibling's target can be a traitor role
-
 ```
 
 # Special Thanks

@@ -75,6 +75,8 @@ if SERVER then
         -- Use a slight delay to make sure nothing else is changing this player's role first
         timer.Simple(0.25, function()
             if not IsPlayer(ply) then return end
+            if not ply:IsActivePinata() then return end
+
             ply.TTTPinataDamageTaken = 0
         end)
     end
