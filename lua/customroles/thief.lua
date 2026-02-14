@@ -620,6 +620,7 @@ if CLIENT then
         -- Move this up based on how many other labels there are
         if steal_cost then
             label_top = label_top + 20
+            label_left = label_left - 20
         else
             label_top = label_top + (20 * #active_labels)
         end
