@@ -79,11 +79,6 @@ function SWEP:SecondaryAttack()
     if not IsValid(owner) then return end
     if not owner:IsActiveThief() then return end
 
-    local spos = owner:GetShootPos()
-    local sdest = spos + (owner:GetAimVector() * 70)
-    local tr = util.TraceLine({ start = spos, endpos = sdest, filter = owner, mask = MASK_SHOT_HULL })
-    local hitEnt = tr.Entity
-
     -- If the thief doesn't have enough credits, let them know
     if GetConVar("ttt_thief_steal_cost"):GetBool() and owner:GetCredits() <= 0 then
         owner:QueueMessage(MSG_PRINTCENTER, "You don't have enough credits!", nil, "thiefCredits")
@@ -91,9 +86,23 @@ function SWEP:SecondaryAttack()
         return
     end
 
+    local spos = owner:GetShootPos()
+    local sdest = spos + (owner:GetAimVector() * 70)
+    local tr = util.TraceLine({ start = spos, endpos = sdest, filter = owner, mask = MASK_SHOT_HULL })
+    local hitEnt = tr.Entity
+
     -- If the thief they can't use their abilities or they don't hit
     -- something they can rob then they effectively miss
-    if owner:IsRoleAbilityDisabled() or tr.HitWorld or not IsPlayer(hitEnt) then
+    if owner:IsRoleAbilityDisabled() or tr.HitWorld or not IsPlayer(hitEnt) or not hitEnt:Alive() or hitEnt:IsSpec() then
+        self:SendWeaponAnim(ACT_VM_MISSCENTER)
+        return
+    end
+
+    -- Don't steal from people we know (or think) are friends
+    local isAlly = (TRAITOR_ROLES[ROLE_THIEF] and (hitEnt:IsGlitch() or hitEnt:IsTraitorTeam())) or
+                    (INNOCENT_ROLES[ROLE_THIEF] and hitEnt:IsDetectiveLike())
+    if isAlly then
+        owner:QueueMessage(MSG_PRINTCENTER, "You can't steal from allies!", nil, "thiefTarget")
         self:SendWeaponAnim(ACT_VM_MISSCENTER)
         return
     end

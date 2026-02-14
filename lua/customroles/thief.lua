@@ -333,6 +333,9 @@ if SERVER then
             for _, p in PlayerIterator() do
                 if p == ply then continue end
                 if not p:Alive() or p:IsSpec() then continue end
+                -- Don't steal from people we know (or think) are friends
+                if TRAITOR_ROLES[ROLE_THIEF] and (p:IsGlitch() or p:IsTraitorTeam()) then continue end
+                if INNOCENT_ROLES[ROLE_THIEF] and p:IsDetectiveLike() then continue end
 
                 local distance = p:GetPos():DistToSqr(ply:GetPos())
                 if distance < proxyDistanceSqr and (closestPlyDist == -1 or distance < closestPlyDist) then
