@@ -33,6 +33,37 @@ ttt_chef_burnt_interval   1   // How often the burnt food eater's health should 
 ttt_chef_burnt_amount     1   // The amount of the burnt food eater's health to remove per interval
 ```
 
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/mgb/tab_mgb.png) Mind Goblin
+_Suggested By_: BoboMcGraw\
+The Mind Goblin is a Jester role that possesses their killer, but wants to help them win. They can buff their killer and if their killer wins, so does the Mind Goblin.
+\
+\
+**ConVars**
+```cpp
+ttt_mindgoblin_enabled                0    // Whether or not a Mind Goblin should spawn
+ttt_mindgoblin_spawn_weight           1    // The weight assigned to spawning a Mind Goblin
+ttt_mindgoblin_min_players            0    // The minimum number of players required to spawn a Mind Goblin
+ttt_mindgoblin_starting_health        150  // The amount of health a Mind Goblin starts with
+ttt_mindgoblin_max_health             150  // The maximum amount of health a Mind Goblin can have
+ttt_mindgoblin_damage_interval        20   // How much damage the Mind Goblin must take between weapon drops
+ttt_mindgoblin_announce               1    // Whether to announce to everyone that there is a Mind Goblin in the round
+ttt_mindgoblin_dissolve               1    // Whether the Mind Goblin's body should dissolve when they die
+ttt_mindgoblin_possess_damage_cost    75   // The amount of power to spend when a Mind Goblin is increasing the damage of their killer via a possession. Set to 0 to disable
+ttt_mindgoblin_possess_damage_factor  0.25 // The damage bonus that the target has against other players (e.g. 0.25 = 25% extra damage)
+ttt_mindgoblin_possess_damage_length  10   // How long (in seconds) the target's damage boost lasts
+ttt_mindgoblin_possess_heal_amount    25   // The amount of health to heal the target for over time when a Mind Goblin uses the heal power
+ttt_mindgoblin_possess_heal_cost      50   // The amount of power to spend when a Mind Goblin is healing their killer via a possession. Set to 0 to disable
+ttt_mindgoblin_possess_power_max      100  // The maximum amount of power a Mind Goblin can have when possessing their killer
+ttt_mindgoblin_possess_power_rate     10   // The amount of power to regain per second when a Mind Goblin is possessing their killer
+ttt_mindgoblin_possess_power_starting 0    // The amount of power to the Mind Goblin starts with
+ttt_mindgoblin_possess_resist_cost    75   // The amount of power to spend when a Mind Goblin is giving their killer damage resist via a possession. Set to 0 to disable
+ttt_mindgoblin_possess_resist_factor  0.25 // The damage resist that the target has against other players (e.g. 0.25 = 25% less damage)
+ttt_mindgoblin_possess_resist_length  10   // How long (in seconds) the target's damage resist lasts
+ttt_mindgoblin_possess_speed_cost     25   // The amount of power to spend when a Mind Goblin is speeding up their killer attack via a possession. Set to 0 to disable
+ttt_mindgoblin_possess_speed_factor   0.5  // The speed boost to give the target (e.g. 0.5 = 50% faster movement)
+ttt_mindgoblin_possess_speed_length   10   // How long (in seconds) the target's speed boost lasts
+```
+
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/pin/tab_pin.png) Piñata
 _Suggested By_: detection.exe\
 The Piñata is an Independent role that drops shop weapons on an interval based on how much damage they take. They also cannot damage another player unless they are damaged by them first.
