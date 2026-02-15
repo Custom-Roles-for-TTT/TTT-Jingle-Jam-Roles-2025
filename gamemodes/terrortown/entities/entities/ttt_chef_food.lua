@@ -45,8 +45,8 @@ function ENT:Initialize()
         self:PhysicsInit(SOLID_VPHYSICS)
     end
     self:SetMoveType(MOVETYPE_VPHYSICS)
-    self:SetSolid(SOLID_VPHYSICS)
-    self:SetCollisionGroup(COLLISION_GROUP_PROJECTILE)
+    self:AddSolidFlags(FSOLID_TRIGGER)
+    self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 
     if SERVER then
         local phys = self:GetPhysicsObject()
@@ -173,11 +173,10 @@ if SERVER then
         return "like you're a bit more powerful."
     end
 
-    function ENT:PhysicsCollide(data, physObj)
+    function ENT:Touch(ent)
         if not IsValid(self) then return end
         if self.DidCollide then return end
 
-        local ent = data.HitEntity
         if not IsPlayer(ent) then return end
 
         self.DidCollide = true
