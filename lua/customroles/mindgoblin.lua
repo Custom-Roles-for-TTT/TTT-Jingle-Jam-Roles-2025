@@ -380,7 +380,7 @@ if CLIENT then
 
         local sid64 = net.ReadString()
         if not speedPlayers[sid64] then
-            speedPlayers[targetSsid64id64] = 0
+            speedPlayers[sid64] = 0
         end
         speedPlayers[sid64] = speedPlayers[sid64] + 1
     end)
