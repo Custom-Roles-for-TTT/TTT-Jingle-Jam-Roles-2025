@@ -21,7 +21,7 @@ SWEP.Kind                   = WEAPON_ROLE
 
 SWEP.AllowDrop              = false
 SWEP.NoSights               = true
-SWEP.UseHands               = true
+SWEP.UseHands               = false
 SWEP.LimitedStock           = true
 SWEP.AmmoEnt                = nil
 
@@ -73,7 +73,7 @@ if CLIENT then
 
         if IsValid(owner) then
             -- Don't show the pie if it's on cooldown
-            if owner.TTTYorkshiremanCooldownStart then return end
+            if owner.TTTYorkshiremanCooldownEnd then return end
 
             -- Specify a good position
             local offsetVec = Vector(5, -2.7, -3.4)
@@ -108,7 +108,7 @@ if CLIENT then
     function SWEP:ShouldDrawViewModel()
         -- Don't show the pie if it's on cooldown
         local owner = self:GetOwner()
-        if not IsValid(owner) or owner.TTTYorkshiremanCooldownStart then
+        if not IsValid(owner) or owner.TTTYorkshiremanCooldownEnd then
             return false
         end
         return true
@@ -136,7 +136,7 @@ function SWEP:PrimaryAttack()
 
     -- TODO: Heal, play sound
     print(owner, "PF")
-    owner:SetProperty("TTTYorkshiremanCooldownStart", CurTime(), owner)
+    owner:SetProperty("TTTYorkshiremanCooldownEnd", CurTime() + GetConVar("ttt_yorkshireman_pie_cooldown"):GetInt(), owner)
 end
 
 function SWEP:SecondaryAttack() end
