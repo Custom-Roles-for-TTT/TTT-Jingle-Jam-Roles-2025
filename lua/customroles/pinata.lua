@@ -47,10 +47,8 @@ ROLE.convars =
     }
 }
 
-ROLE.translations =
-{
-    ["english"] =
-    {
+ROLE.translations = {
+    ["english"] = {
         ["pinata_targetid"] = "DAMAGEABLE",
         ["win_pinata"] = "The {role} has survived unbroken!",
         ["ev_win_pinata"] = "The {role} has survived unbroken!"

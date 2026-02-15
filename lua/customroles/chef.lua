@@ -22,7 +22,7 @@ ROLE.nameshort = "chf"
 ROLE.desc = [[You are {role}! Place down a stove with
 your chosen food to cook up some buffs
 for your friends, and damage for your foes.]]
-ROLE.shortdesc = "Cooks a chosen food for other players which provides a buff (or, if burnt, causes damage)"
+ROLE.shortdesc = "Cooks a chosen food for other players which provides a buff (or, if burnt, causes damage)."
 
 ROLE.team = ROLE_TEAM_INNOCENT
 
