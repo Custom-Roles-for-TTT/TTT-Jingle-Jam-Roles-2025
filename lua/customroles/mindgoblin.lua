@@ -21,9 +21,89 @@ ROLE.nameext = "a Mind Goblin"
 ROLE.nameshort = "mgb"
 ROLE.team = ROLE_TEAM_JESTER
 
-ROLE.desc = [[You are {role}!
-TODO]]
-ROLE.shortdesc = "TODO"
+ROLE.desc = [[You are {role}! You will possess
+the person who kills you. But you're nice
+so you can give them buffs and if they win,
+so do you!]]
+ROLE.shortdesc = "Possesses their killer, allowing them to give buffs and help get a shared win."
+
+ROLE.convars =
+{
+    {
+        cvar = "ttt_mindgoblin_possess_power_starting",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_power_max",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_power_rate",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_mindgoblin_dissolve",
+        type = ROLE_CONVAR_TYPE_BOOL
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_heal_cost",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_heal_amount",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_speed_cost",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_speed_factor",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 2
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_speed_length",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_damage_cost",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_damage_factor",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 2
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_damage_length",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_resist_cost",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_resist_factor",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 2
+    },
+    {
+        cvar = "ttt_mindgoblin_possess_resist_length",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    }
+}
 
 ROLE.translations = {
     ["english"] = {
@@ -44,7 +124,7 @@ ROLE.translations = {
 -- ROLE CONVARS --
 ------------------
 
-local mindgoblin_possess_power_max = CreateConVar("ttt_mindgoblin_killer_possess_power_max", "100", FCVAR_REPLICATED, "The maximum amount of power a Mind Goblin can have when possessing their killer", 1, 200)
+local mindgoblin_possess_power_max = CreateConVar("ttt_mindgoblin_possess_power_max", "100", FCVAR_REPLICATED, "The maximum amount of power a Mind Goblin can have when possessing their killer", 1, 200)
 
 local mindgoblin_possess_heal_cost = CreateConVar("ttt_mindgoblin_possess_heal_cost", "50", FCVAR_REPLICATED, "The amount of power to spend when a Mind Goblin is healing their killer via a possession. Set to 0 to disable", 0, 100)
 local mindgoblin_possess_heal_amount = CreateConVar("ttt_mindgoblin_possess_heal_amount", "25", FCVAR_REPLICATED, "The amount of health to heal the target for over time when a Mind Goblin uses the heal power", 1, 100)
@@ -505,7 +585,7 @@ if CLIENT then
 
         -- Possessing powers
         if heal_cost > 0 or speed_cost > 0 or damage_cost > 0 or resist_cost > 0 then
-            html = html .. "<span style='display: block; margin-top: 10px'>While dead, the " .. ROLE_STRINGS[ROLE_MINDGOBLIN] .. " will possess their killer, generating up to <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>" .. max .. " haunting power</span> over time. This haunting power can be used on the following actions:</span>"
+            html = html .. "<span style='display: block; margin-top: 10px'>While dead, the " .. ROLE_STRINGS[ROLE_MINDGOBLIN] .. " will possess their killer, generating up to <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>" .. max .. " possession power</span> over time. This possession power can be used on the following actions:</span>"
 
             html = html .. "<ul style='margin-top: 0'>"
             if heal_cost > 0 then
@@ -530,7 +610,7 @@ if CLIENT then
             html = html .. "</ul>"
         end
 
-        html = html .. "<span style='display: block; margin-top: 10px;'><span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>TODO</span>.</span>"
+        html = html .. "<span style='display: block; margin-top: 10px;'>The " .. ROLE_STRINGS[ROLE_MINDGOBLIN] .. " <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>shares the win with their killer</span> so they want to use the buffs to help as much as possible.</span>"
 
         return html
     end)
