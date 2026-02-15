@@ -216,6 +216,21 @@ ttt_thief_update_scoreboard           0   // Whether Thieves show dead players a
 ttt_thief_shop_sync                   0   // Whether Thieves should have all weapons that vanilla Traitors have in their weapon shop (only used if "ttt_thief_is_traitor" is enabled and "ttt_thief_is_innocent" is disabled)
 ```
 
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/ysm/tab_ysm.png) Yorkshireman
+_Suggested By_: jambobinator\
+_Depends On_: [[TTT] Guard Dog](https://steamcommunity.com/sharedfiles/filedetails/?id=2120419714) and [Tea set props](https://steamcommunity.com/sharedfiles/filedetails/?id=1676060509)\
+The Yorkshireman is an Independent role who craves tea and just wants to mind their own business. With their trusty hound and shotgun by their side to ward of any aggressors, they spent their day just meandering around eating pie and trying to keep their tea craving at bay.
+\
+\
+**ConVars**
+```cpp
+ttt_yorkshireman_enabled             0   // Whether or not a Yorkshireman should spawn
+ttt_yorkshireman_spawn_weight        1   // The weight assigned to spawning a Yorkshireman
+ttt_yorkshireman_min_players         0   // The minimum number of players required to spawn a Yorkshireman
+ttt_yorkshireman_starting_health     100 // The amount of health a Yorkshireman starts with
+ttt_yorkshireman_max_health          100 // The maximum amount of health a Yorkshireman can have
+```
+
 # Special Thanks
 - [Game icons](https://game-icons.net/) for the role icons
 - [The Stig](https://steamcommunity.com/id/The-Stig-294) for the code used to shrink imperfect clones
@@ -225,3 +240,4 @@ ttt_thief_shop_sync                   0   // Whether Thieves should have all wea
 - [GFXSounds.com](https://gfxsounds.com) for the picking and opening sounds used for the Safekeeper's safe
   - [Safe lock, vault, opening mechanism 6](https://gfxsounds.com/sound-effect/safe-lock-vault-opening-mechanism-6/)
   - [Safe vault, dial lock, turning click 6](https://gfxsounds.com/sound-effect/safe-vault-dial-lock-turning-click-6/)
+- [THE PIE GUY](https://steamcommunity.com/profiles/76561198082760562) for the [Pie Bomb](https://steamcommunity.com/sharedfiles/filedetails/?id=316765309) whose model is used by the Yorkshireman

@@ -1,0 +1,10 @@
+"VertexLitGeneric"
+{
+	"$basetexture"		"models/pie/pie"
+	"$surfaceprop"		"flesh"
+	"$bumpmap"		"models/pie/pie_normal"
+	"$envmap"		"env_cubemap"
+	"$normalmapalphaenvmapmask"		1
+	"$envmapsaturation"		0.4
+	"$envmaptint" "[0.4 0 1]"
+}
