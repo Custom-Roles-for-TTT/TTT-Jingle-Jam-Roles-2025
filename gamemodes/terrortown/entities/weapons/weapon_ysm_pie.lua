@@ -1,3 +1,7 @@
+local math = math
+
+local MathMin = math.min
+
 if CLIENT then
     SWEP.PrintName          = "Pie"
     SWEP.Slot               = 8
@@ -39,6 +43,10 @@ SWEP.Secondary.Automatic    = false
 SWEP.Secondary.Cone         = 0
 SWEP.Secondary.Ammo         = nil
 SWEP.Secondary.Sound        = ""
+
+function SWEP:Initialize()
+    self:SetWeaponHoldType(self.HoldType)
+end
 
 if CLIENT then
     local function ScaleModel(mdl, amt)
@@ -118,26 +126,30 @@ if CLIENT then
         SafeRemoveEntity(self.ClientWorldModel)
         self.ClientWorldModel = nil
     end
+
+    function SWEP:PrimaryAttack() end
 end
 
-function SWEP:Think() end
+if SERVER then
+    local yorkshireman_pie_cooldown = CreateConVar("ttt_yorkshireman_pie_cooldown", "30", FCVAR_NONE, "How long (in seconds) after the Yorkshireman eats pie before another one is ready", 1, 60)
+    local yorkshireman_pie_heal = CreateConVar("ttt_yorkshireman_pie_heal", "15", FCVAR_NONE, "How much health the Yorkshireman should gain after eating a pie", 1, 100)
 
-function SWEP:Initialize()
-    self:SetWeaponHoldType(self.HoldType)
-end
+    function SWEP:PrimaryAttack()
+        self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
 
-function SWEP:PrimaryAttack()
-    self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
+        local owner = self:GetOwner()
+        if not IsValid(owner) then return end
 
-    if not SERVER then return end
+        local hp = owner:Health()
+        local max = owner:GetMaxHealth()
+        if hp >= max then return end
 
-    local owner = self:GetOwner()
-    if not IsValid(owner) then return end
-
-    -- TODO: Heal
-    print(owner, "PF")
-    owner:EmitSound("ysm/eat.mp3", 100, 100, 1, CHAN_ITEM)
-    owner:SetProperty("TTTYorkshiremanCooldownEnd", CurTime() + GetConVar("ttt_yorkshireman_pie_cooldown"):GetInt(), owner)
+        owner:SetHealth(MathMin(max, hp + yorkshireman_pie_heal:GetInt()))
+        owner:EmitSound("ysm/eat.mp3", 100, 100, 1, CHAN_ITEM)
+        owner:SetProperty("TTTYorkshiremanCooldownEnd", CurTime() + yorkshireman_pie_cooldown:GetInt(), owner)
+    end
 end
 
 function SWEP:SecondaryAttack() end
+
+function SWEP:Think() end

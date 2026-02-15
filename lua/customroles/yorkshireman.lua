@@ -48,7 +48,6 @@ ROLE.translations = {
 -- ROLE CONVARS --
 ------------------
 
-local yorkshireman_pie_cooldown = CreateConVar("ttt_yorkshireman_pie_cooldown", "30", FCVAR_REPLICATED, "How long (in seconds) after the Yorkshireman eats pie before another one is ready", 1, 60)
 local yorkshireman_tea_spawn = CreateConVar("ttt_yorkshireman_tea_spawn", "15", FCVAR_REPLICATED, "How many cups of tea should be spawned around the map", 1, 60)
 local yorkshireman_tea_collect = CreateConVar("ttt_yorkshireman_tea_collect", "10", FCVAR_REPLICATED, "How many cups of tea should the Yorkshireman needs to collect to win", 1, 60)
 
@@ -191,7 +190,7 @@ if CLIENT then
         local _, total = GetTeaLimits()
 
         if collected >= total then
-            surface.SetTextColor(0, 150, 0, 230)
+            surface.SetTextColor(0, 200, 0, 230)
         else
             surface.SetTextColor(255, 255, 255, 230)
         end
