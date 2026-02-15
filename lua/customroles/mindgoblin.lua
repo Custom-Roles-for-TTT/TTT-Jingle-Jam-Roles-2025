@@ -11,7 +11,6 @@ local AddHook = hook.Add
 local MathRound = math.Round
 local PlayerIterator = player.Iterator
 local TableInsert = table.insert
-local TableSort = table.sort
 
 local ROLE = {}
 
@@ -67,7 +66,6 @@ local mindgoblin_possess_resist_length = CreateConVar("ttt_mindgoblin_possess_re
 -------------------
 
 local speedPlayers = {}
--- TODO: Test this
 AddHook("TTTSpeedMultiplier", "MindGoblin_TTTSpeedMultiplier", function(ply, mults)
     if not ply:Alive() or ply:IsSpec() then return end
     local sid = ply:SteamID64()
@@ -181,12 +179,14 @@ if SERVER then
         local goblinSubject = "your target, " .. target:Nick()
         local targetSubject = "you"
         if key == IN_BACK and power >= heal_cost then
+            if target:Health() >= target:GetMaxHealth() then return end
+
             local timerId = "MindGoblinHealBuff_" .. plySid64 .. "_" .. targetSid64
             if timer.Exists(timerId) then return end
 
             net.Start("TTT_MindGoblinHealStart")
                 net.WriteString(targetSid64)
-            net.Send(target)
+            net.Broadcast()
 
             local heal_amount = mindgoblin_possess_heal_amount:GetInt()
 
@@ -207,7 +207,7 @@ if SERVER then
                 timer.Remove(timerId .. "_Smoke")
                 net.Start("TTT_MindGoblinHealEnd")
                     net.WriteString(targetSid64)
-                net.Send(target)
+                net.Broadcast()
             end)
 
             spent = heal_cost
@@ -346,9 +346,6 @@ if CLIENT then
 
     local healPlayers = {}
     net.Receive("TTT_MindGoblinHealStart", function()
-        local cli = LocalPlayer()
-        if not IsPlayer(cli) then return end
-
         local sid64 = net.ReadString()
         if not healPlayers[sid64] then
             healPlayers[sid64] = 0
@@ -357,16 +354,13 @@ if CLIENT then
     end)
 
     net.Receive("TTT_MindGoblinHealEnd", function()
-        local cli = LocalPlayer()
-        if not IsPlayer(cli) then return end
-
         local sid64 = net.ReadString()
         if not healPlayers[sid64] then return end
+        healPlayers[sid64] = healPlayers[sid64] - 1
     end)
 
-    -- TODO: Test this
     AddHook("TTTShouldPlayerSmoke", "MindGoblin_TTTShouldPlayerSmoke", function(ply, cli, shouldSmoke, smokeParticle, smokeOffset)
-        local sid64 = cli:SteamID64()
+        local sid64 = ply:SteamID64()
         if healPlayers[sid64] and healPlayers[sid64] > 0 then
             return true, COLOR_GREEN
         end
