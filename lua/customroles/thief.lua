@@ -201,6 +201,16 @@ if SERVER then
         EVENT_THIEFSTOLEN = GenerateNewEventID(ROLE_THIEF)
     end)
 
+    function plymeta:CanThiefStealFrom()
+        if TRAITOR_ROLES[ROLE_THIEF] then
+            return not self:IsGlitch() and not self:IsTraitorTeam()
+        end
+        if INNOCENT_ROLES[ROLE_THIEF] then
+            return not self:IsDetectiveLike()
+        end
+        return true
+    end
+
     function plymeta:ThiefSteal(target)
         if not self:Alive() or self:IsSpec() then return end
         if not IsPlayer(target) then return end
@@ -284,6 +294,8 @@ if SERVER then
     local function ClearTracking(ply)
         if ply.TTTThiefStealStartTime then
             ply:ClearProperty("TTTThiefStealStartTime", ply)
+        end
+        if ply.TTTThiefStealLostTime then
             ply:ClearProperty("TTTThiefStealLostTime", ply)
         end
 
@@ -296,6 +308,20 @@ if SERVER then
             ply:ClearProperty("TTTThiefStealTarget", ply)
         end
     end
+
+    AddHook("TTTPlayerRoleChanged", "Thief_TTTPlayerRoleChanged", function(ply, oldRole, newRole)
+        if oldRole == newRole then return end
+        if ply:CanThiefStealFrom() then return end
+
+        local sid64 = ply:SteamID64()
+        for _, p in PlayerIterator() do
+            if not p:IsThief() then continue end
+            if p.TTTThiefStealTarget == sid64 then
+                p:QueueMessage(MSG_PRINTBOTH, ply:Nick() .. " is now an ally so you've decided to stop trying to rob them")
+                ClearTracking(p)
+            end
+        end
+    end)
 
     AddHook("TTTPlayerAliveThink", "Thief_TTTPlayerAliveThink_Steal", function(ply)
         if GetRoundState() ~= ROUND_ACTIVE then return end
@@ -348,8 +374,7 @@ if SERVER then
                 if p == ply then continue end
                 if not p:Alive() or p:IsSpec() then continue end
                 -- Don't steal from people we know (or think) are friends
-                if TRAITOR_ROLES[ROLE_THIEF] and (p:IsGlitch() or p:IsTraitorTeam()) then continue end
-                if INNOCENT_ROLES[ROLE_THIEF] and p:IsDetectiveLike() then continue end
+                if not p:CanThiefStealFrom() then continue end
 
                 local distance = p:GetPos():DistToSqr(ply:GetPos())
                 if distance < proxyDistanceSqr and (closestPlyDist == -1 or distance < closestPlyDist) then

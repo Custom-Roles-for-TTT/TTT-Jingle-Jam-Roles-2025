@@ -99,9 +99,7 @@ function SWEP:SecondaryAttack()
     end
 
     -- Don't steal from people we know (or think) are friends
-    local isAlly = (TRAITOR_ROLES[ROLE_THIEF] and (hitEnt:IsGlitch() or hitEnt:IsTraitorTeam())) or
-                    (INNOCENT_ROLES[ROLE_THIEF] and hitEnt:IsDetectiveLike())
-    if isAlly then
+    if not hitEnt:CanThiefStealFrom() then
         owner:QueueMessage(MSG_PRINTCENTER, "You can't steal from allies!", nil, "thiefTarget")
         self:SendWeaponAnim(ACT_VM_MISSCENTER)
         return
