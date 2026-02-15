@@ -237,7 +237,7 @@ if SERVER then
 
             spent = speed_cost
             verb = "hastened"
-        elseif key == IN_RIGHT and power >= damage_cost then
+        elseif key == IN_MOVERIGHT and power >= damage_cost then
             local timerId = "MindGoblinDamageBuff_" .. plySid64 .. "_" .. targetSid64
             if timer.Exists(timerId) then return end
 
@@ -256,7 +256,7 @@ if SERVER then
             verb = "buffed"
             goblinSubject = goblinSubject .. "'s damage"
             targetSubject = targetSubject .. "r damage"
-        elseif key == IN_LEFT and power >= resist_cost then
+        elseif key == IN_MOVELEFT and power >= resist_cost then
             local timerId = "MindGoblinResistBuff_" .. plySid64 .. "_" .. targetSid64
             if timer.Exists(timerId) then return end
 
@@ -284,8 +284,7 @@ if SERVER then
         ply:SetProperty("TTTMindGoblinPossessingPower", power - spent, ply)
     end)
 
-    -- TODO: Test this
-    AddHook("ScalePlayerDamage", "MindGoblin_ScalePlayerDamage", function(ply, hitgroup, dmginfo)
+    AddHook("EntityTakeDamage", "MindGoblin_EntityTakeDamage", function(ply, dmginfo)
         local att = dmginfo:GetAttacker()
         -- If the attacker is buffed, scale their damage up
         if IsPlayer(att) and att:Alive() and not att:IsSpec() then
