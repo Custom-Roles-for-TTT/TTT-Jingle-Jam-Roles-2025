@@ -202,7 +202,6 @@ if CLIENT then
         -- Move this up based on how many other labels there are
         label_top = label_top + (20 * #active_labels)
 
-        surface.SetTextColor(255, 255, 255, 230)
         surface.SetTextPos(label_left, ScrH() - label_top - h)
         surface.DrawText(text)
 
@@ -219,6 +218,7 @@ if CLIENT then
         -- Move this up again for the label we just rendered
         label_top = label_top + 20
 
+        surface.SetTextColor(255, 255, 255, 230)
         surface.SetTextPos(label_left, ScrH() - label_top - h)
         surface.DrawText(text)
 
