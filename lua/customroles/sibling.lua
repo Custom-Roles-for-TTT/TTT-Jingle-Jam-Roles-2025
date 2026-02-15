@@ -26,7 +26,7 @@ target's shop purchases (and might steal them).
 
 Your target is: {siblingtarget}
 ]]
-ROLE.shortdesc = "Gets a copy of their targets shop purchases (and sometimes steals them)"
+ROLE.shortdesc = "Gets a copy of their targets shop purchases (and sometimes steals them)."
 
 ROLE.team = ROLE_TEAM_INNOCENT
 
