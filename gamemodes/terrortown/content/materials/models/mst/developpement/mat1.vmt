@@ -1,0 +1,6 @@
+VertexLitGeneric
+{
+	$basetexture "models/mst/developpement/Mat1"
+	$bumpmap "models/mst/developpement/Mat1_bumpmap"
+	$surfaceprop Metal
+}
