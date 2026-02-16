@@ -71,7 +71,7 @@ if SERVER then
         if tr.HitPos:Distance(owner:GetPos()) > self.DogMaxSpawnDist then return end
 
         local pos = tr.HitPos + Vector(0, 0, 5)
-        local dog = EntCreate("ttt_ysm_dog")
+        local dog = EntCreate("ttt_yorkshireman_dog")
         dog:SetController(owner)
         dog:SetPos(pos)
         dog:SetAngles(owner:GetAngles())

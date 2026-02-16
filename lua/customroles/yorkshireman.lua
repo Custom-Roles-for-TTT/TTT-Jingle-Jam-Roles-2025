@@ -171,7 +171,7 @@ if SERVER then
             for i=1, yorkshireman_tea_spawn:GetInt() do
                 local spawn = spawns[MathRandom(#spawns)]
                 local pos = spawn:GetPos()
-                local tea = CreateEnt("ttt_ysm_tea")
+                local tea = CreateEnt("ttt_yorkshireman_tea")
                 tea:SetPos(pos + Vector(MathRand(2, 5), 5, MathRand(2, 5)))
                 tea:Spawn()
                 tea:Activate()

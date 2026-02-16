@@ -110,6 +110,26 @@ if SERVER then
 
     ENT.TrackPause = 0.25
 
+    -------------
+    -- UNSTUCK --
+    -------------
+
+    function ENT:IsStuck()
+        return self.loco:IsStuck()
+    end
+
+    function ENT:Unstuck()
+        local controller = self:GetController()
+        if not IsPlayer(controller) then return end
+
+
+        local ang = controller:EyeAngles()
+        ang.x = 0
+        self:ClearEnemy()
+        self:SetPos(controller:GetPos())
+        self:SetAngles(ang)
+    end
+
     ----------------------
     -- ENEMY MANAGEMENT --
     ----------------------
@@ -144,7 +164,7 @@ if SERVER then
             end
             path:Update(self)
 
-            if self.loco:IsStuck() then
+            if self:IsStuck() then
                 self:HandleStuck()
                 return "stuck"
             end
@@ -217,7 +237,7 @@ if SERVER then
                         end
                         path:Update(self)
 
-                        if self.loco:IsStuck() then
+                        if self:IsStuck() then
                             self:HandleStuck()
                             return "stuck"
                         end
@@ -268,11 +288,9 @@ if SERVER then
             self.loco:ClearStuck()
         end
 
-        local controller = self:GetController()
-        if not IsPlayer(controller) then return end
+        if not self:IsStuck() then return end
 
-        self:ClearEnemy()
-        self:SetPos(controller:GetPos())
+        self:Unstuck()
     end
 
     function ENT:OnContact(contact)
