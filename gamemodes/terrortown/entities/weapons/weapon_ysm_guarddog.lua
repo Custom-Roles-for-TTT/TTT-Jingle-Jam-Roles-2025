@@ -1,10 +1,10 @@
+if SERVER then
+	AddCSLuaFile()
+end
+
 local ents = ents
 
 local EntCreate = ents.Create
-
-if SERVER then
-	AddCSLuaFile( "shared.lua" )
-end
 
 if CLIENT then
     SWEP.PrintName          = "Guard Dog"

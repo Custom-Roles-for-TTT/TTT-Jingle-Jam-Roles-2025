@@ -59,6 +59,16 @@ ROLE.convars =
         cvar = "ttt_yorkshireman_shotgun_damage",
         type = ROLE_CONVAR_TYPE_NUM,
         decimal = 0
+    },
+    {
+        cvar = "ttt_yorkshireman_dog_health",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_yorkshireman_dog_damage",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
     }
 }
 

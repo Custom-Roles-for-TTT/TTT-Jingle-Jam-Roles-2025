@@ -77,10 +77,6 @@ function ENT:Initialize()
             name = "cr4ttt_dog_whine",
             sound = "ysm/dog/whine.mp3"
         })
-        sound.Add({
-            name = "cr4ttt_dog_yelp",
-            sound = "ysm/dog/yelp.mp3"
-        })
     end
 end
 
@@ -260,14 +256,6 @@ if SERVER then
     --------------------
     -- EVENT HANDLERS --
     --------------------
-
-    function ENT:OnInjured(dmginfo)
-        local curTime = CurTime()
-        if curTime < self.LastYelp + self.YelpDelay then return end
-
-        self.LastYelp = curTime
-        self:EmitSound("cr4ttt_dog_yelp")
-    end
 
     function ENT:OnKilled(dmginfo)
         self:EmitSound("cr4ttt_dog_whine")

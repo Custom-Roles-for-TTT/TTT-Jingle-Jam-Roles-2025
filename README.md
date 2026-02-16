@@ -224,11 +224,20 @@ The Yorkshireman is an Independent role who craves tea and just wants to mind th
 \
 **ConVars**
 ```cpp
-ttt_yorkshireman_enabled             0   // Whether or not a Yorkshireman should spawn
-ttt_yorkshireman_spawn_weight        1   // The weight assigned to spawning a Yorkshireman
-ttt_yorkshireman_min_players         0   // The minimum number of players required to spawn a Yorkshireman
-ttt_yorkshireman_starting_health     100 // The amount of health a Yorkshireman starts with
-ttt_yorkshireman_max_health          100 // The maximum amount of health a Yorkshireman can have
+ttt_yorkshireman_enabled           0   // Whether or not a Yorkshireman should spawn
+ttt_yorkshireman_spawn_weight      1   // The weight assigned to spawning a Yorkshireman
+ttt_yorkshireman_min_players       0   // The minimum number of players required to spawn a Yorkshireman
+ttt_yorkshireman_starting_health   100 // The amount of health a Yorkshireman starts with
+ttt_yorkshireman_max_health        100 // The maximum amount of health a Yorkshireman can have
+ttt_yorkshireman_dog_damage        20  // How much damage the Yorkshireman's Guard Dog should do
+ttt_yorkshireman_dog_health        100 // How much health the Yorkshireman's Guard Dog should have
+ttt_yorkshireman_pie_cooldown      30  // How long (in seconds) after the Yorkshireman eats pie before another one is ready
+ttt_yorkshireman_pie_heal          15  // How much health the Yorkshireman should gain after eating a pie
+ttt_yorkshireman_shotgun_damage    10  // How much damage the Yorkshireman's double barrel shotgun should do
+ttt_yorkshireman_tea_collect       15  // How many cups of tea should the Yorkshireman needs to collect to win
+ttt_yorkshireman_tea_spawn         20  // How many cups of tea should be spawned around the map
+ttt_yorkshireman_can_see_jesters   0   // Whether jesters are revealed (via head icons, color/icon on the scoreboard, etc.) to Yorkshiremen
+ttt_yorkshireman_update_scoreboard 0   // Whether Yorkshiremen show dead players as missing in action
 ```
 
 # Special Thanks
@@ -244,6 +253,11 @@ ttt_yorkshireman_max_health          100 // The maximum amount of health a Yorks
   - The drinking and eating sounds used by the Yorkshireman:
     - [Drinking with a swallow and ah sound effect](https://gfxsounds.com/sound-effect/drinking-with-a-swallow-and-ah/)
     - [Eating and chewing a carrot sound effect](https://gfxsounds.com/sound-effect/eating-and-chewing-a-carrot/) by [Panda Wave](https://gfxsounds.com/blog/pandawave/)
+  - The various sounds used by the Yorkshireman's Guard Dog:
+    - [Dog eating kibble 2 sound effect](https://gfxsounds.com/sound-effect/dog-eating-kibble-2/)
+    - [Dog, german sheperd, barking and snarling 2 sound effect](https://gfxsounds.com/sound-effect/dog-german-sheperd-barking-and-snarling-2/)
+    - [Dog whining and whimpering sound effect](https://gfxsounds.com/sound-effect/dog-whining-and-whimpering/)
+    - [Large dog barking, single bark 2 sound effect](https://gfxsounds.com/sound-effect/large-dog-barking-single-bark-2/)
 - [THE PIE GUY](https://steamcommunity.com/profiles/76561198082760562) for the [Pie Bomb](https://steamcommunity.com/sharedfiles/filedetails/?id=316765309) whose model is used by the Yorkshireman
 - [ajwuk2](https://steamcommunity.com/profiles/76561199043038286) for the [[TTT] Guard Dog](https://steamcommunity.com/sharedfiles/filedetails/?id=2120419714) which was used as the base for the Yorkshireman's Guard Dog
 - [BloodOrange1](https://steamcommunity.com/profiles/76561199164997872) for the [Dog SNPC (Reupload)](https://steamcommunity.com/sharedfiles/filedetails/?id=3513018735) whose model is used by the Yorkshireman's Guard Dog
