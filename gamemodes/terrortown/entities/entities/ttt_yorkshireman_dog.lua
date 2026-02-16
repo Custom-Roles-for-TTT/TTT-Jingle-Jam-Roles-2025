@@ -5,6 +5,7 @@ end
 local math = math
 
 local MathRand = math.Rand
+local MathRandom = math.random
 
 if CLIENT then
     ENT.TargetIDHint = function(dog)
@@ -39,12 +40,10 @@ end
 
 AccessorFuncDT(ENT, "Damage", "Damage")
 AccessorFuncDT(ENT, "Controller", "Controller")
-AccessorFuncDT(ENT, "Enemy", "Enemy")
 
 function ENT:SetupDataTables()
    self:DTVar("Int", 0, "Damage")
-   self:DTVar("Entity", 1, "Controller")
-   self:DTVar("Entity", 0, "Enemy")
+   self:DTVar("Entity", 0, "Controller")
 end
 
 function ENT:Initialize()
@@ -57,7 +56,6 @@ function ENT:Initialize()
         self:SetDamage(GetConVar("ttt_yorkshireman_dog_damage"):GetInt())
 
         self:SetVar("Attacking", false)
-        self:SetEnemy(nil)
 
         -- Register sounds
         sound.Add({
@@ -79,17 +77,10 @@ function ENT:Initialize()
     end
 end
 
-function ENT:GetControllerDistToSqr()
-    local controller = self:GetController()
-    if not IsPlayer(controller) then return end
-
-    return self:GetRangeSquaredTo(controller)
-end
-
 if SERVER then
     ENT.MaxSpawnDist = 200
 
-    ENT.WanderDist = 150
+    ENT.WanderDist = 100
     ENT.FollowDist = 150*150
     ENT.ReturnDist = 350*350
     ENT.RunDist = 600*600
@@ -108,8 +99,11 @@ if SERVER then
     ENT.YelpDelay = 5
 
     ENT.StuckTime = 3
+    ENT.StuckDist = 500
 
     ENT.TrackPause = 0.25
+
+    ENT.Enemy = nil
 
     -------------
     -- UNSTUCK --
@@ -120,6 +114,9 @@ if SERVER then
     end
 
     function ENT:Unstuck()
+        -- If we're stuck in our enemy just let it go
+        if IsValid(self.Enemy) and self:GetRangeSquaredTo(self.Enemy) < self.StuckDist then return end
+
         local controller = self:GetController()
         if not IsPlayer(controller) then return end
 
@@ -139,25 +136,31 @@ if SERVER then
     -- ENEMY MANAGEMENT --
     ----------------------
 
+    function ENT:GetEnemy()
+        return self.Enemy
+    end
+
+    function ENT:SetEnemy(enemy)
+        self.Enemy = enemy
+    end
+
     function ENT:ClearEnemy()
-        self:SetEnemy(nil)
+        self.Enemy = nil
     end
 
     function ENT:HasEnemy()
-        local enemy = self:GetEnemy()
-        if not IsPlayer(enemy) then return false end
+        if not IsPlayer(self.Enemy) then return false end
 
-        return enemy:Alive() and not enemy:IsSpec()
+        return self.Enemy:Alive() and not self.Enemy:IsSpec()
     end
 
     function ENT:ChaseEnemy()
-        local enemy = self:GetEnemy()
-        if not IsPlayer(enemy) then return end
+        if not IsPlayer(self.Enemy) then return end
 
         local path = Path("Follow")
         path:SetMinLookAheadDistance(300)
         path:SetGoalTolerance(20)
-        path:Compute(self, enemy:GetPos())
+        path:Compute(self, self.Enemy:GetPos())
         if not path:IsValid() then
             return
         end
@@ -165,7 +168,7 @@ if SERVER then
         while path:IsValid() and self:HasEnemy() do
             -- Update the path to the enemy as they move
             if path:GetAge() > 0.1 then
-                path:Compute(self, enemy:GetPos())
+                path:Compute(self, self.Enemy:GetPos())
             end
             path:Update(self)
 
@@ -179,12 +182,11 @@ if SERVER then
     end
 
     function ENT:TrackEnemy()
-        local enemy = self:GetEnemy()
-        if not IsPlayer(enemy) then return end
+        if not IsPlayer(self.Enemy) then return end
 
         local act = self:GetActivity()
         self:EmitSound("cr4ttt_dog_bark")
-        self.loco:FaceTowards(enemy:GetPos())
+        self.loco:FaceTowards(self.Enemy:GetPos())
         self:PlaySequenceAndWait("ragdoll")
         coroutine.wait(self.TrackPause)
         self:StartActivity(ACT_RUN)
@@ -241,7 +243,7 @@ if SERVER then
                         path:Update(self)
 
                         if self:IsStuck() then
-                            self:HandleStuck()
+                            self:Unstuck()
                             continue
                         end
 
@@ -266,10 +268,13 @@ if SERVER then
                     end
                 else
                     -- Wander, maybe idle a bit
-                    self:StartActivity(ACT_WALK)
-                    self.loco:SetDesiredSpeed(self.IdleSpeed)
-                    self:MoveToPos(self:GetPos() + Vector(MathRand(-1, 1), MathRand(-1, 1), 0) * self.WanderDist)
-                    self:StartActivity(ACT_IDLE)
+                    if MathRandom(1, 2) == 1 then
+                        self:StartActivity(ACT_WALK)
+                        self.loco:SetDesiredSpeed(self.IdleSpeed)
+                        self:MoveToPos(self:GetPos() + Vector(MathRand(-1, 1), MathRand(-1, 1), 0) * self.WanderDist)
+                    else
+                        self:PlaySequenceAndWait("idle0")
+                    end
                 end
             end
             coroutine.wait(0.1)
@@ -294,9 +299,7 @@ if SERVER then
         local curTime = CurTime()
         if curTime < self.NextAttack then return end
         if not IsPlayer(contact) then return end
-
-        local enemy = self:GetEnemy()
-        if enemy ~= contact then return end
+        if self.Enemy ~= contact then return end
 
         local controller = self:GetController()
         if not IsPlayer(controller) then return end
@@ -310,7 +313,13 @@ if SERVER then
         dmg:SetAttacker(controller)
         dmg:SetInflictor(self)
         dmg:SetWeapon(controller:GetWeapon("weapon_ysm_guarddog"))
-        enemy:TakeDamageInfo(dmg)
+        self.Enemy:TakeDamageInfo(dmg)
+    end
+
+    function ENT:OnOtherKilled(victim, dmginfo)
+        if not IsValid(self.Enemy) then return end
+        if self.Enemy ~= victim then return end
+        self:ClearEnemy()
     end
 end
 
