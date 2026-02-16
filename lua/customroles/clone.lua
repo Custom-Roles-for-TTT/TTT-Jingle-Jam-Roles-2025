@@ -37,6 +37,10 @@ ROLE.translations = {
 
 ROLE.convars = {
     {
+        cvar = "ttt_clone_is_independent",
+        type = ROLE_CONVAR_TYPE_BOOL
+    },
+    {
         cvar = "ttt_clone_perfect_clone",
         type = ROLE_CONVAR_TYPE_BOOL
     },
@@ -57,8 +61,23 @@ RegisterRole(ROLE)
 -- ROLE CONVARS --
 ------------------
 
+local clone_is_independent = CreateConVar("ttt_clone_is_independent", "0", FCVAR_REPLICATED, "Whether the Clone should be treated as an independent role", 0, 1)
 local clone_perfect_clone = CreateConVar("ttt_clone_perfect_clone", "0", FCVAR_REPLICATED, "Whether the Clone copies their target's model perfectly. If \"false\", some aspect of the clone will be wrong (such as skin, bodygroup, size, etc.)", 0, 1)
 local clone_target_detectives = CreateConVar("ttt_clone_target_detectives", "0", FCVAR_REPLICATED, "Whether the Clone can target detective roles", 0, 1)
+
+-- Independent ConVars
+CreateConVar("ttt_clone_can_see_jesters", "0", FCVAR_REPLICATED)
+CreateConVar("ttt_clone_update_scoreboard", "0", FCVAR_REPLICATED)
+
+-----------------
+-- TEAM CHANGE --
+-----------------
+
+AddHook("TTTUpdateRoleState", "Hermit_TTTUpdateRoleState", function()
+    local is_independent = clone_is_independent:GetBool()
+    INDEPENDENT_ROLES[ROLE_CLONE] = is_independent
+    JESTER_ROLES[ROLE_CLONE] = not is_independent
+end)
 
 if SERVER then
     AddCSLuaFile()
@@ -230,7 +249,15 @@ if CLIENT then
         if role == ROLE_CLONE then
             local T = LANG.GetTranslation
             local roleColor = ROLE_COLORS[ROLE_CLONE]
-            local html = "The " .. ROLE_STRINGS[ROLE_CLONE] .. " is a <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>jester role</span> who chooses a player to clone using their Target Picker device."
+            local html = "The " .. ROLE_STRINGS[ROLE_CLONE] .. " is "
+
+            if clone_is_independent:GetBool() then
+                html = html .. "a <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>jester role</span>"
+            else
+                html = html .. "an <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>independent role</span>"
+            end
+
+            html = html .. " who chooses a player to clone using their Target Picker device."
 
             -- Targets
             html = html .. "<span style='display: block; margin-top: 10px;'>Their target can be <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>any "
