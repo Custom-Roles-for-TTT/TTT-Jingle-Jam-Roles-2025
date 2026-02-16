@@ -99,6 +99,7 @@ if SERVER then
 
         local tr = owner:GetEyeTrace()
         if tr.Hit and IsValid(tr.Entity) then
+            owner:EmitSound("yorkshireman/whistle_attack.mp3", 100, 100, 1, CHAN_WEAPON)
             self.DogEnt:SetEnemy(tr.Entity)
         end
     end
@@ -110,6 +111,10 @@ if SERVER then
         end
         if not IsValid(self.DogEnt) or not self.DogEnt:Alive() then return end
 
+        local owner = self:GetOwner()
+        if IsPlayer(owner) then
+            owner:EmitSound("yorkshireman/whistle_return.mp3", 50, 100, 1, CHAN_WEAPON)
+        end
         self.DogEnt:ClearEnemy()
     end
 
@@ -124,6 +129,11 @@ if SERVER then
         if curTime < self.NextReloadTime then return end
 
         if self.DogEnt:IsStuck() then
+            local owner = self:GetOwner()
+            if IsPlayer(owner) then
+                owner:EmitSound("yorkshireman/whistle_return.mp3", 50, 100, 1, CHAN_WEAPON)
+            end
+
             self.NextReloadTime = curTime + self.DogEnt.StuckTime
             self.DogEnt:Unstuck()
         end

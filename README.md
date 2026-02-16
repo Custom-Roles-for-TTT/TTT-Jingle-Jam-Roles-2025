@@ -251,13 +251,15 @@ ttt_yorkshireman_update_scoreboard 0   // Whether Yorkshiremen show dead players
     - [Safe lock, vault, opening mechanism 6](https://gfxsounds.com/sound-effect/safe-lock-vault-opening-mechanism-6/)
     - [Safe vault, dial lock, turning click 6](https://gfxsounds.com/sound-effect/safe-vault-dial-lock-turning-click-6/)
   - The drinking and eating sounds used by the Yorkshireman:
-    - [Drinking with a swallow and ah sound effect](https://gfxsounds.com/sound-effect/drinking-with-a-swallow-and-ah/)
-    - [Eating and chewing a carrot sound effect](https://gfxsounds.com/sound-effect/eating-and-chewing-a-carrot/) by [Panda Wave](https://gfxsounds.com/blog/pandawave/)
+    - [Drinking with a swallow and ah](https://gfxsounds.com/sound-effect/drinking-with-a-swallow-and-ah/)
+    - [Eating and chewing a carrot](https://gfxsounds.com/sound-effect/eating-and-chewing-a-carrot/) by [Panda Wave](https://gfxsounds.com/blog/pandawave/)
   - The various sounds used by the Yorkshireman's Guard Dog:
-    - [Dog eating kibble 2 sound effect](https://gfxsounds.com/sound-effect/dog-eating-kibble-2/)
-    - [Dog, german sheperd, barking and snarling 2 sound effect](https://gfxsounds.com/sound-effect/dog-german-sheperd-barking-and-snarling-2/)
-    - [Dog whining and whimpering sound effect](https://gfxsounds.com/sound-effect/dog-whining-and-whimpering/)
-    - [Large dog barking, single bark 2 sound effect](https://gfxsounds.com/sound-effect/large-dog-barking-single-bark-2/)
+    - [Dog eating kibble 2](https://gfxsounds.com/sound-effect/dog-eating-kibble-2/)
+    - [Dog, german sheperd, barking and snarling 2](https://gfxsounds.com/sound-effect/dog-german-sheperd-barking-and-snarling-2/)
+    - [Dog whining and whimpering](https://gfxsounds.com/sound-effect/dog-whining-and-whimpering/)
+    - [Human whistle, short, fingers, call attention](https://gfxsounds.com/sound-effect/human-whistle-short-fingers-call-attention/) by [Cesar Brasil](https://gfxsounds.com/blog/cesar-brasil/)
+    - [Human whistle, short, fingers, call attention 6](https://gfxsounds.com/sound-effect/human-whistle-short-fingers-call-attention-6/) by [Cesar Brasil](https://gfxsounds.com/blog/cesar-brasil/)
+    - [Large dog barking, single bark 2](https://gfxsounds.com/sound-effect/large-dog-barking-single-bark-2/)
 - [THE PIE GUY](https://steamcommunity.com/profiles/76561198082760562) for the [Pie Bomb](https://steamcommunity.com/sharedfiles/filedetails/?id=316765309) whose model is used by the Yorkshireman
 - [ajwuk2](https://steamcommunity.com/profiles/76561199043038286) for the [[TTT] Guard Dog](https://steamcommunity.com/sharedfiles/filedetails/?id=2120419714) which was used as the base for the Yorkshireman's Guard Dog
 - [BloodOrange1](https://steamcommunity.com/profiles/76561199164997872) for the [Dog SNPC (Reupload)](https://steamcommunity.com/sharedfiles/filedetails/?id=3513018735) whose model is used by the Yorkshireman's Guard Dog
