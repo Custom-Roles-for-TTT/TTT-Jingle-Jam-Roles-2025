@@ -88,6 +88,8 @@ function ENT:GetControllerDistToSqr()
 end
 
 if SERVER then
+    ENT.MaxSpawnDist = 200
+
     ENT.WanderDist = 150
     ENT.FollowDist = 150*150
     ENT.ReturnDist = 350*350
@@ -122,11 +124,15 @@ if SERVER then
         local controller = self:GetController()
         if not IsPlayer(controller) then return end
 
+        local tr = controller:GetEyeTrace()
+        if not tr.Hit then return end
+        if tr.HitPos:Distance(controller:GetPos()) > self.MaxSpawnDist then return end
 
+        local pos = tr.HitPos + Vector(0, 0, 5)
         local ang = controller:EyeAngles()
         ang.x = 0
         self:ClearEnemy()
-        self:SetPos(controller:GetPos())
+        self:SetPos(pos)
         self:SetAngles(ang)
     end
 
@@ -154,7 +160,7 @@ if SERVER then
         path:SetGoalTolerance(20)
         path:Compute(self, enemy:GetPos())
         if not path:IsValid() then
-            return "failed"
+            return
         end
 
         while path:IsValid() and self:HasEnemy() do
@@ -166,13 +172,11 @@ if SERVER then
 
             if self:IsStuck() then
                 self:HandleStuck()
-                return "stuck"
+                return
             end
 
             coroutine.yield()
         end
-
-        return "ok"
     end
 
     function ENT:TrackEnemy()
@@ -227,7 +231,7 @@ if SERVER then
                     path:SetGoalTolerance(20)
                     path:Compute(self, controllerPos)
                     if not path:IsValid() then
-                        return "failed"
+                        continue
                     end
 
                     while path:IsValid() and controllerDistSqr > self.FollowDist do
@@ -239,7 +243,7 @@ if SERVER then
 
                         if self:IsStuck() then
                             self:HandleStuck()
-                            return "stuck"
+                            continue
                         end
 
                         if self:HasEnemy() then
@@ -283,13 +287,7 @@ if SERVER then
     end
 
     function ENT:HandleStuck()
-        local startTime = CurTime()
-        while CurTime() < (startTime + self.StuckTime) do
-            self.loco:ClearStuck()
-        end
-
         if not self:IsStuck() then return end
-
         self:Unstuck()
     end
 

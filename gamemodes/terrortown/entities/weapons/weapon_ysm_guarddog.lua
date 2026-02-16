@@ -58,7 +58,9 @@ end
 if SERVER then
     SWEP.DogSpawned         = false
     SWEP.DogEnt             = nil
-    SWEP.DogMaxSpawnDist    = 100
+    SWEP.DogMaxSpawnDist    = 200
+
+    SWEP.NextReloadTime     = 0
 
     function SWEP:SpawnDog()
         if self.DogEnt ~= nil then return end
@@ -71,12 +73,17 @@ if SERVER then
         if tr.HitPos:Distance(owner:GetPos()) > self.DogMaxSpawnDist then return end
 
         local pos = tr.HitPos + Vector(0, 0, 5)
+        local ang = owner:EyeAngles()
+        ang.x = 0
+
         local dog = EntCreate("ttt_yorkshireman_dog")
         dog:SetController(owner)
         dog:SetPos(pos)
-        dog:SetAngles(owner:GetAngles())
+        dog:SetAngles(ang)
         dog:Spawn()
         dog:Activate()
+        dog.MaxSpawnDist = self.DogMaxSpawnDist
+        self.DogEnt = dog
         owner.TTTYorkshiremanDog = dog
     end
 
@@ -85,6 +92,7 @@ if SERVER then
             self:SpawnDog()
             return
         end
+        if not self.DogEnt:Alive() then return end
 
         local owner = self:GetOwner()
         if not IsPlayer(owner) then return end
@@ -100,8 +108,9 @@ if SERVER then
             self:SpawnDog()
             return
         end
+        if not self.DogEnt:Alive() then return end
 
-        self.DogEnt:ClearTarget()
+        self.DogEnt:ClearEnemy()
     end
 
     function SWEP:Reload()
@@ -109,8 +118,15 @@ if SERVER then
             self:SpawnDog()
             return
         end
+        if not self.DogEnt:Alive() then return end
 
-        self.DogEnt:HandleStuck()
+        local curTime = CurTime()
+        if curTime < self.NextReloadTime then return end
+
+        if self.DogEnt:IsStuck() then
+            self.NextReloadTime = curTime + self.DogEnt.StuckTime
+            self.DogEnt:Unstuck()
+        end
     end
 
     function SWEP:OnDrop()
