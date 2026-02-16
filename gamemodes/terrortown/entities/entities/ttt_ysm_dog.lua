@@ -54,7 +54,7 @@ function ENT:Initialize()
     if SERVER then
         local health = GetConVar("ttt_yorkshireman_dog_health"):GetInt()
         self:SetHealth(health)
-        self:SetMaxHeal(health)
+        self:SetMaxHealth(health)
         self:SetDamage(GetConVar("ttt_yorkshireman_dog_damage"):GetInt())
 
         self:SetVar("Attacking", false)
@@ -277,7 +277,7 @@ if SERVER then
 
     function ENT:OnContact(contact)
         local curTime = CurTime()
-        if curTime < self.NextAttack() then return end
+        if curTime < self.NextAttack then return end
         if not IsPlayer(contact) then return end
 
         local enemy = self:GetEnemy()
