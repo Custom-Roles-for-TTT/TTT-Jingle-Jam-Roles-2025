@@ -1,0 +1,29 @@
+"VertexLitGeneric"
+{
+	
+	"$baseTexture"	"models/Npc_Dog/Npc_Dog"
+	"$surfaceprop" "flesh"
+	"$bumpmap" "models/Npc_Dog/Npc_Dog_normal"
+
+	"$normalmapalphaenvmapmask" 1
+	"$envmapcontrast" 1
+	"$envmapsaturation" 1
+	"$envmaptint" "[0.4 0.4 0.4]"
+
+	"$envmap" "env_cubemap"
+
+	"$Freezefxenvmap" "FX/Freeze/freeze_env_cubemap"
+	"$Freezefxenvmapmask" "FX/Freeze/Freeze_envmapmask"
+	"$Freezemaptint" "[1 1 1]"
+	"$Freezefxmap" "models/Npc_Dog/dog_freezegradient"
+
+	"vertexlitgeneric_HDR_dx9"
+
+	{
+
+               "$envmaptint" "[.5 .5 .5]"
+               "$Freezefxenvmap" "FX/Freeze/fz_npc_cubemap_hdr_"
+
+	}
+
+}

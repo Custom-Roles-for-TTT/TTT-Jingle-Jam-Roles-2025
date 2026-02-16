@@ -218,7 +218,7 @@ ttt_thief_shop_sync                   0   // Whether Thieves should have all wea
 
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/ysm/tab_ysm.png) Yorkshireman
 _Suggested By_: jambobinator\
-_Depends On_: [[TTT] Guard Dog](https://steamcommunity.com/sharedfiles/filedetails/?id=2120419714) and [Tea set props](https://steamcommunity.com/sharedfiles/filedetails/?id=1676060509)\
+_Depends On_: [Tea set props](https://steamcommunity.com/sharedfiles/filedetails/?id=1676060509)\
 The Yorkshireman is an Independent role who craves tea and just wants to mind their own business. With their trusty hound and shotgun by their side to ward of any aggressors, they spent their day just meandering around eating pie and trying to keep their tea craving at bay.
 \
 \
@@ -245,5 +245,6 @@ ttt_yorkshireman_max_health          100 // The maximum amount of health a Yorks
     - [Drinking with a swallow and ah sound effect](https://gfxsounds.com/sound-effect/drinking-with-a-swallow-and-ah/)
     - [Eating and chewing a carrot sound effect](https://gfxsounds.com/sound-effect/eating-and-chewing-a-carrot/) by [Panda Wave](https://gfxsounds.com/blog/pandawave/)
 - [THE PIE GUY](https://steamcommunity.com/profiles/76561198082760562) for the [Pie Bomb](https://steamcommunity.com/sharedfiles/filedetails/?id=316765309) whose model is used by the Yorkshireman
-- [THE PIE GUY](https://steamcommunity.com/profiles/76561198082760562) for the [Pie Bomb](https://steamcommunity.com/sharedfiles/filedetails/?id=316765309) whose model is used by the Yorkshireman
+- [ajwuk2](https://steamcommunity.com/profiles/76561199043038286) for the [[TTT] Guard Dog](https://steamcommunity.com/sharedfiles/filedetails/?id=2120419714) which was used as the base for the Yorkshireman's Guard Dog
+- [BloodOrange1](https://steamcommunity.com/profiles/76561199164997872) for the [Dog SNPC (Reupload)](https://steamcommunity.com/sharedfiles/filedetails/?id=3513018735) whose model is used by the Yorkshireman's Guard Dog
 - [Lykrast](https://steamcommunity.com/id/Lykrast) for the code and models used to create the Yorkshireman's double barrel shotgun taken from ['Lykrast's TTT Weapon Collection'](https://steamcommunity.com/sharedfiles/filedetails/?id=337994500).

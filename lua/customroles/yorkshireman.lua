@@ -66,6 +66,8 @@ ROLE.translations = {
     ["english"] = {
         ["yorkshireman_collect_hud"] = "Tea drank: {collected}/{total}",
         ["yorkshireman_cooldown_hud"] = "Pie ready in: {time}",
+        ["ysm_dog_name"] = "Guard Dog",
+        ["ysm_dog_name_health"] = "Guard Dog ({current}/{max})",
         ["ysm_tea"] = "Cup of Tea",
         ["ysm_tea_hint"] = "Press {usekey} to drink"
     }
