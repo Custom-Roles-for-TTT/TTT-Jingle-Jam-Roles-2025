@@ -22,17 +22,44 @@ ROLE.nameplural = "Yorkshiremen"
 ROLE.nameext = "a Yorkshireman"
 ROLE.nameshort = "ysm"
 
-ROLE.desc = [[You are {role}!
-TODO]]
-ROLE.shortdesc = "TODO"
+ROLE.desc = [[You are {role}! You want to collect
+Cups of Tea that spawn around the map
+while mostly minding your own business.
+
+Don't let others get in your way, and eat
+some of your Pie to heal if things go badly.]]
+ROLE.shortdesc = "They crave tea and just want to mind their own business and meander around eating pie and keeping their tea craving at bay."
 
 ROLE.team = ROLE_TEAM_INDEPENDENT
 ROLE.haspassivewin = true
--- TODO: This thing is completely broken
---ROLE.loadout = {"weapon_ttt_guard_dog"}
 
 ROLE.convars =
 {
+    {
+        cvar = "ttt_yorkshireman_tea_spawn",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_yorkshireman_tea_collect",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_yorkshireman_pie_cooldown",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_yorkshireman_pie_heal",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_yorkshireman_shotgun_damage",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    }
 }
 
 ROLE.translations = {
@@ -48,8 +75,8 @@ ROLE.translations = {
 -- ROLE CONVARS --
 ------------------
 
-local yorkshireman_tea_spawn = CreateConVar("ttt_yorkshireman_tea_spawn", "15", FCVAR_REPLICATED, "How many cups of tea should be spawned around the map", 1, 60)
-local yorkshireman_tea_collect = CreateConVar("ttt_yorkshireman_tea_collect", "10", FCVAR_REPLICATED, "How many cups of tea should the Yorkshireman needs to collect to win", 1, 60)
+local yorkshireman_tea_spawn = CreateConVar("ttt_yorkshireman_tea_spawn", "20", FCVAR_REPLICATED, "How many cups of tea should be spawned around the map", 1, 60)
+local yorkshireman_tea_collect = CreateConVar("ttt_yorkshireman_tea_collect", "15", FCVAR_REPLICATED, "How many cups of tea should the Yorkshireman needs to collect to win", 1, 60)
 
 local function GetTeaLimits()
     local spawn = yorkshireman_tea_spawn:GetInt()
@@ -231,7 +258,14 @@ if CLIENT then
 
     AddHook("TTTTutorialRoleText", "Yorkshireman_TTTTutorialRoleText", function(role, titleLabel)
         if role == ROLE_YORKSHIREMAN then
-            -- TODO
+            local roleColor = GetRoleTeamColor(ROLE_TEAM_INDEPENDENT)
+            local html = "The " .. ROLE_STRINGS[ROLE_YORKSHIREMAN] .. " is an <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>independent</span> role whose goal is to collect Tea Cups around the map and keep their tea craving at bay."
+
+            html = html .. "<span style='display: block; margin-top: 10px;'>The " .. ROLE_STRINGS[ROLE_YORKSHIREMAN] .. " needs to <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>collect " .. yorkshireman_tea_collect:GetInt() .. " Cup(s) of Tea</span> to finally be able to relax and share the win with whoever is left.</span>"
+
+            html = html .. "<span style='display: block; margin-top: 10px;'>When they feel weak, they can <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>eat some Pie</span> to regain health.</span>"
+
+            return html
         end
     end)
 
