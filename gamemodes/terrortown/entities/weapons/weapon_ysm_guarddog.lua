@@ -23,7 +23,8 @@ SWEP.Category               = WEAPON_CATEGORY_ROLE
 SWEP.Spawnable              = false
 SWEP.AutoSpawnable          = false
 SWEP.HoldType               = "normal"
-SWEP.Kind                   = WEAPON_ROLE
+-- Make this its own kind so it doesn't conflict with all the other role weapons
+SWEP.Kind                   = WEAPON_ROLE + 1
 
 SWEP.AllowDrop              = false
 SWEP.NoSights               = true
