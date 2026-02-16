@@ -96,13 +96,15 @@ The Piñata is an Independent role that drops shop weapons on an interval based 
 \
 **ConVars**
 ```cpp
-ttt_pinata_enabled         0   // Whether or not a Piñata should spawn
-ttt_pinata_spawn_weight    1   // The weight assigned to spawning a Piñata
-ttt_pinata_min_players     0   // The minimum number of players required to spawn a Piñata
-ttt_pinata_starting_health 150 // The amount of health a Piñata starts with
-ttt_pinata_max_health      150 // The maximum amount of health a Piñata can have
-ttt_pinata_damage_interval 20  // How much damage the Piñata must take between weapon drops
-ttt_pinata_announce        1   // Whether to announce to everyone that there is a Piñata in the round
+ttt_pinata_enabled           0   // Whether or not a Piñata should spawn
+ttt_pinata_spawn_weight      1   // The weight assigned to spawning a Piñata
+ttt_pinata_min_players       0   // The minimum number of players required to spawn a Piñata
+ttt_pinata_starting_health   150 // The amount of health a Piñata starts with
+ttt_pinata_max_health        150 // The maximum amount of health a Piñata can have
+ttt_pinata_damage_interval   20  // How much damage the Piñata must take between weapon drops
+ttt_pinata_announce          1   // Whether to announce to everyone that there is a Piñata in the round
+ttt_pinata_can_see_jesters   0   // Whether jesters are revealed (via head icons, color/icon on the scoreboard, etc.) to Piñatas
+ttt_pinata_update_scoreboard 0   // Whether Piñatas show dead players as missing in action
 ```
 
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/rsw/tab_rsw.png) Randoswapper
@@ -209,6 +211,9 @@ ttt_thief_steal_proximity_distance    5   // How close (in meters) the Thief nee
 ttt_thief_steal_proximity_float_time  3   // The amount of time (in seconds) it takes for the Thief to lose their target after getting out of range. Only used when "ttt_thief_steal_mode 0" is set
 ttt_thief_steal_proximity_require_los 1   // Whether the Thief requires line-of-sight to steal something. Only used when "ttt_thief_steal_mode 0" is set
 ttt_thief_steal_proximity_time        15  // How long (in seconds) it takes the Thief to steal something from a target. Only used when "ttt_thief_steal_mode 0" is set
+ttt_thief_can_see_jesters             0   // Whether jesters are revealed (via head icons, color/icon on the scoreboard, etc.) to Thieves (only used if "ttt_thief_is_innocent" and "ttt_thief_is_traitor" are both disabled)
+ttt_thief_update_scoreboard           0   // Whether Thieves show dead players as missing in action (only used if "ttt_thief_is_innocent" and "ttt_thief_is_traitor" are both disabled)
+ttt_thief_shop_sync                   0   // Whether Thieves should have all weapons that vanilla Traitors have in their weapon shop (only used if "ttt_thief_is_traitor" is enabled and "ttt_thief_is_innocent" is disabled)
 ```
 
 # Special Thanks
