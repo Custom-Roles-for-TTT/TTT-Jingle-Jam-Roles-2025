@@ -1,3 +1,3 @@
 if SERVER then
-    resource.AddWorkshop("TBD")
+    resource.AddWorkshop("3667558223")
 end
