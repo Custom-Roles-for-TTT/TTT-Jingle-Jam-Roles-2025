@@ -161,10 +161,7 @@ if SERVER then
         path:SetMinLookAheadDistance(300)
         path:SetGoalTolerance(20)
         path:Compute(self, self.Enemy:GetPos())
-        if not path:IsValid() then
-            return
-        end
-
+        if not path:IsValid() then return end
         while path:IsValid() and self:HasEnemy() do
             -- Update the path to the enemy as they move
             if path:GetAge() > 0.1 then
@@ -174,7 +171,7 @@ if SERVER then
 
             if self:IsStuck() then
                 self:HandleStuck()
-                return
+                if self:IsStuck() then return end
             end
 
             coroutine.yield()
@@ -244,6 +241,7 @@ if SERVER then
 
                         if self:IsStuck() then
                             self:Unstuck()
+                            if self:IsStuck() then break end
                             continue
                         end
 
