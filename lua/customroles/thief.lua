@@ -750,8 +750,15 @@ if CLIENT then
 
         if not IsPlayer(thief) then return end
 
-        local message = LANG.GetParamTranslation("thief_steal_notify", {item = item, victim = victim})
-        thief:QueueMessage(MSG_PRINTBOTH, message)
+        -- If this client is the thief that did the stealing, use this
+        -- method to also notify them of what they stole
+        if not client then
+            client = LocalPlayer()
+        end
+        if client == thief then
+            local message = LANG.GetParamTranslation("thief_steal_notify", {item = item, victim = victim})
+            client:QueueMessage(MSG_PRINTBOTH, message)
+        end
 
         CLSCORE:AddEvent({
             id = EVENT_THIEFSTOLEN,
