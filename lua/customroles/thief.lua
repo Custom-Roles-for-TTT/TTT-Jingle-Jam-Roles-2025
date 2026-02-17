@@ -493,11 +493,10 @@ if SERVER then
         if not ply:IsActiveThief() then return end
         if not IsValid(wep) then return end
         if wep.Kind == WEAPON_MELEE then return end
+        if wep.TTTThiefStolenWeapon then return end
 
         local wepClass = WEPS.GetClass(wep)
-        if ply.TTTThiefStolenWeapon and ply.TTTThiefStolenWeapon.class == wepClass then
-            return true
-        end
+        if ply.TTTThiefStolenWeapon and ply.TTTThiefStolenWeapon.class == wepClass then return end
 
         if not TableHasValue(allowedWeaponClasses, wepClass) then
             return false
@@ -524,6 +523,14 @@ if SERVER then
             -- Reset the property for the next steal
             ply.TTTThiefStolenWeapon = nil
         end
+    end)
+
+    -- Mark this as a weapon that the thief had previously stolen so they can pick it up again later
+    AddHook("PlayerDroppedWeapon", "Thief_PlayerDroppedWeapon", function(ply, wep)
+        if not IsValid(ply) then return end
+        if not IsValid(wep) then return end
+        if not ply:IsThief() then return end
+        wep.TTTThiefStolenWeapon = true
     end)
 
     ----------------
