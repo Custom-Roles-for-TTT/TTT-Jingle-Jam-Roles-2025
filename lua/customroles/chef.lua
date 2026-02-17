@@ -107,6 +107,10 @@ ROLE.convars =
         cvar = "ttt_chef_burnt_amount",
         type = ROLE_CONVAR_TYPE_NUM,
         decimal = 0
+    },
+    {
+        cvar = "ttt_chef_placer_buyable",
+        type = ROLE_CONVAR_TYPE_BOOL
     }
 }
 

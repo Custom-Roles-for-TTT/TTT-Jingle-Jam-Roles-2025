@@ -87,6 +87,11 @@ ROLE.convars =
         cvar = "ttt_thief_steal_proximity_distance",
         type = ROLE_CONVAR_TYPE_NUM,
         decimal = 0
+    },
+    {
+        cvar = "ttt_thief_steal_to_win",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
     }
 }
 
