@@ -212,6 +212,7 @@ ttt_thief_steal_proximity_distance    5   // How close (in meters) the Thief nee
 ttt_thief_steal_proximity_float_time  3   // The amount of time (in seconds) it takes for the Thief to lose their target after getting out of range. Only used when "ttt_thief_steal_mode 0" is set
 ttt_thief_steal_proximity_require_los 1   // Whether the Thief requires line-of-sight to steal something. Only used when "ttt_thief_steal_mode 0" is set
 ttt_thief_steal_proximity_time        15  // How long (in seconds) it takes the Thief to steal something from a target. Only used when "ttt_thief_steal_mode 0" is set
+ttt_thief_steal_to_win                0   // How many weapons the Thief has to steal to get a secondary win. If set to "0", the Thief must be the last player standing to win. Only used if "ttt_thief_is_innocent" and "ttt_thief_is_traitor" are both disabled
 ttt_thief_can_see_jesters             0   // Whether jesters are revealed (via head icons, color/icon on the scoreboard, etc.) to Thieves. Only used if "ttt_thief_is_innocent" and "ttt_thief_is_traitor" are both disabled
 ttt_thief_update_scoreboard           0   // Whether Thieves show dead players as missing in action. Only used if "ttt_thief_is_innocent" and "ttt_thief_is_traitor" are both disabled
 ttt_thief_shop_sync                   0   // Whether Thieves should have all weapons that vanilla Traitors have in their weapon shop. Only used if "ttt_thief_is_traitor" is enabled and "ttt_thief_is_innocent" is disabled
