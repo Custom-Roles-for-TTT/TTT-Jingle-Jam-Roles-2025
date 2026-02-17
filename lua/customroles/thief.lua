@@ -538,6 +538,8 @@ if SERVER then
 
         if thief_alive and not other_alive then
             return WIN_THIEF
+        elseif thief_alive then
+            return WIN_NONE
         end
     end)
 
