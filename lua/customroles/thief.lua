@@ -667,7 +667,7 @@ if CLIENT then
             surface.SetTextPos(label_left, ScrH() - label_top - h)
             surface.DrawText(text)
 
-            -- Reset this back to where it was           
+            -- Reset this back to where it was
             label_left = label_left - 20
 
             -- Track that the label was added so others can position accurately
