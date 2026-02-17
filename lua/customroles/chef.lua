@@ -229,10 +229,27 @@ if SERVER then
         ply.TTTChefHat = nil
     end)
 
-    -- Remove buffs when a player dies
-    AddHook("PostPlayerDeath", "Chef_PostPlayerDeath_Cleanup", function(ply)
+    -- Remove buffs and move the hat to the ragdoll (or hide it) when a player dies
+    AddHook("PostPlayerDeath", "Chef_PostPlayerDeath", function(ply)
         if not IsPlayer(ply) then return end
+        if IsValid(ply.TTTChefHat) then
+            local ragdoll = ply.server_ragdoll or ply:GetRagdollEntity()
+            if IsValid(ragdoll) then
+                ply.TTTChefHat:SetParent(ragdoll)
+            else
+                ply.TTTChefHat:SetNoDraw(true)
+            end
+        end
         RemoveBuffs(ply)
+    end)
+
+    -- Show the hat on the player again if they get respawned
+    AddHook("PlayerSpawn", "Chef_PlayerSpawn", function(ply, transition)
+        if not IsPlayer(ply) then return end
+        if IsValid(ply.TTTChefHat) then
+            ply.TTTChefHat:SetParent(ply)
+            ply.TTTChefHat:SetNoDraw(false)
+        end
     end)
 end
 
