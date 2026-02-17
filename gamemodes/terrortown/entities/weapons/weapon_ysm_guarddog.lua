@@ -82,7 +82,6 @@ if SERVER then
         dog:SetAngles(ang)
         dog:Spawn()
         dog:Activate()
-        dog.MaxSpawnDist = self.DogMaxSpawnDist
         self.DogEnt = dog
         owner.TTTYorkshiremanDog = dog
     end

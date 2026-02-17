@@ -78,12 +78,10 @@ function ENT:Initialize()
 end
 
 if SERVER then
-    ENT.MaxSpawnDist = 200
-
     ENT.WanderDist = 100
     ENT.FollowDist = 150*150
     ENT.ReturnDist = 350*350
-    ENT.RunDist = 600*600
+    ENT.RunDist = 500*500
 
     ENT.IdleSpeed = 100
     ENT.WalkSpeed = 150
@@ -99,7 +97,9 @@ if SERVER then
     ENT.YelpDelay = 5
 
     ENT.StuckTime = 3
-    ENT.StuckDist = 500
+    ENT.StuckStep = 50
+    ENT.StuckDist = ENT.StuckStep
+    ENT.StuckIterations = 0
 
     ENT.TrackPause = 0.25
 
@@ -114,22 +114,36 @@ if SERVER then
     end
 
     function ENT:Unstuck()
+        local stuckDist = self.StuckDist + (self.StuckStep * self.StuckIterations)
         -- If we're stuck in our enemy just let it go
-        if IsValid(self.Enemy) and self:GetRangeSquaredTo(self.Enemy) < self.StuckDist then return end
+        if IsValid(self.Enemy) and self:GetRangeSquaredTo(self.Enemy) < stuckDist then
+            self.StuckIterations = self.StuckIterations + 1
+            return
+        end
+        self.StuckIterations = 0
 
         local controller = self:GetController()
         if not IsPlayer(controller) then return end
 
-        local tr = controller:GetEyeTrace()
-        if not tr.Hit then return end
-        if tr.HitPos:Distance(controller:GetPos()) > self.MaxSpawnDist then return end
-
-        local pos = tr.HitPos + Vector(0, 0, 5)
-        local ang = controller:EyeAngles()
-        ang.x = 0
         self:ClearEnemy()
-        self:SetPos(pos)
-        self:SetAngles(ang)
+
+        -- Respawn the dog in front of their controller
+        local ang = controller:EyeAngles()
+        local pos = controller:GetPos() + ang:Forward() * 75
+        ang.x = 0
+        local dog = ents.Create("ttt_yorkshireman_dog")
+        dog:SetController(controller)
+        dog:SetPos(pos + Vector(0, 0, 5))
+        dog:SetAngles(ang)
+        dog:Spawn()
+        dog:Activate()
+        local wep = controller:GetWeapon("weapon_ysm_guarddog")
+        if IsValid(wep) then
+            wep.DogEnt = dog
+        end
+        controller.TTTYorkshiremanDog = dog
+
+        self:Remove()
     end
 
     ----------------------
@@ -162,6 +176,7 @@ if SERVER then
         path:SetGoalTolerance(20)
         path:Compute(self, self.Enemy:GetPos())
         if not path:IsValid() then return end
+
         while path:IsValid() and self:HasEnemy() do
             -- Update the path to the enemy as they move
             if path:GetAge() > 0.1 then
@@ -170,9 +185,10 @@ if SERVER then
             path:Update(self)
 
             if self:IsStuck() then
-                self:HandleStuck()
+                self:Unstuck()
                 if self:IsStuck() then return end
             end
+            self.StuckIterations = 0
 
             coroutine.yield()
         end
@@ -244,6 +260,7 @@ if SERVER then
                             if self:IsStuck() then break end
                             continue
                         end
+                        self.StuckIterations = 0
 
                         if self:HasEnemy() then
                             self:TrackEnemy()
@@ -286,11 +303,6 @@ if SERVER then
     function ENT:OnKilled(dmginfo)
         self:EmitSound("cr4ttt_dog_whine")
         self:BecomeRagdoll(dmginfo)
-    end
-
-    function ENT:HandleStuck()
-        if not self:IsStuck() then return end
-        self:Unstuck()
     end
 
     function ENT:OnContact(contact)
