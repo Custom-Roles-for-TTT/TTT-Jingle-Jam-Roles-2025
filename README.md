@@ -32,10 +32,11 @@ ttt_chef_fish_amount            0.5 // The percentage of damage boost that the f
 ttt_chef_burnt_time             30  // The amount of time the burnt food effect should last
 ttt_chef_burnt_interval         1   // How often the burnt food eater's health should be removed
 ttt_chef_burnt_amount           1   // The amount of the burnt food eater's health to remove per interval
-ttt_chef_credits_starting       1   // The number of credits a Chef should start with (only used if "ttt_chef_is_detective" is enabled)
-ttt_chef_shop_sync              0   // Whether Chefs should have all weapons that vanilla Detectives have in their weapon shop (only used if "ttt_chef_is_detective" is enabled)
-ttt_chef_shop_random_percent    0   // The percent chance that a weapon in the shop will not be shown for the Chef (only used if "ttt_chef_is_detective" is enabled)
-ttt_chef_shop_random_enabled    0   // Whether shop randomization should run for the Chef (only used if "ttt_chef_is_detective" is enabled)
+ttt_chef_placer_buyable         1   // Whether the Chef's Stove Placer is buyable in their shop. Only used if "ttt_chef_is_detective" is enabled
+ttt_chef_credits_starting       1   // The number of credits a Chef should start with. Only used if "ttt_chef_is_detective" is enabled
+ttt_chef_shop_sync              0   // Whether Chefs should have all weapons that vanilla Detectives have in their weapon shop. Only used if "ttt_chef_is_detective" is enabled
+ttt_chef_shop_random_percent    0   // The percent chance that a weapon in the shop will not be shown for the Chef. Only used if "ttt_chef_is_detective" is enabled
+ttt_chef_shop_random_enabled    0   // Whether shop randomization should run for the Chef. Only used if "ttt_chef_is_detective" is enabled
 ```
 
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/cln/tab_cln.png) Clone
@@ -54,8 +55,8 @@ ttt_clone_is_independent    0   // Whether the Clone should be treated as an ind
 ttt_clone_perfect_clone     0   // Whether the Clone copies their target's model perfectly. If "false", some aspect of the clone will be wrong (such as skin, bodygroup, size, etc.)
 ttt_clone_target_detectives 0   // Whether the Clone can target detective roles
 ttt_clone_minimum_radius    5   // The minimum radius of the Clone's device in meters. Set to 0 to disable
-ttt_clone_can_see_jesters   0   // Whether jesters are revealed (via head icons, color/icon on the scoreboard, etc.) to Clones (only used if "ttt_clone_is_independent" is enabled)
-ttt_clone_update_scoreboard 0   // Whether Clones show dead players as missing in action (only used if "ttt_clone_is_independent" is enabled)
+ttt_clone_can_see_jesters   0   // Whether jesters are revealed (via head icons, color/icon on the scoreboard, etc.) to Clones. Only used if "ttt_clone_is_independent" is enabled
+ttt_clone_update_scoreboard 0   // Whether Clones show dead players as missing in action. Only used if "ttt_clone_is_independent" is enabled
 ```
 
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/mgb/tab_mgb.png) Mind Goblin
@@ -211,9 +212,9 @@ ttt_thief_steal_proximity_distance    5   // How close (in meters) the Thief nee
 ttt_thief_steal_proximity_float_time  3   // The amount of time (in seconds) it takes for the Thief to lose their target after getting out of range. Only used when "ttt_thief_steal_mode 0" is set
 ttt_thief_steal_proximity_require_los 1   // Whether the Thief requires line-of-sight to steal something. Only used when "ttt_thief_steal_mode 0" is set
 ttt_thief_steal_proximity_time        15  // How long (in seconds) it takes the Thief to steal something from a target. Only used when "ttt_thief_steal_mode 0" is set
-ttt_thief_can_see_jesters             0   // Whether jesters are revealed (via head icons, color/icon on the scoreboard, etc.) to Thieves (only used if "ttt_thief_is_innocent" and "ttt_thief_is_traitor" are both disabled)
-ttt_thief_update_scoreboard           0   // Whether Thieves show dead players as missing in action (only used if "ttt_thief_is_innocent" and "ttt_thief_is_traitor" are both disabled)
-ttt_thief_shop_sync                   0   // Whether Thieves should have all weapons that vanilla Traitors have in their weapon shop (only used if "ttt_thief_is_traitor" is enabled and "ttt_thief_is_innocent" is disabled)
+ttt_thief_can_see_jesters             0   // Whether jesters are revealed (via head icons, color/icon on the scoreboard, etc.) to Thieves. Only used if "ttt_thief_is_innocent" and "ttt_thief_is_traitor" are both disabled
+ttt_thief_update_scoreboard           0   // Whether Thieves show dead players as missing in action. Only used if "ttt_thief_is_innocent" and "ttt_thief_is_traitor" are both disabled
+ttt_thief_shop_sync                   0   // Whether Thieves should have all weapons that vanilla Traitors have in their weapon shop. Only used if "ttt_thief_is_traitor" is enabled and "ttt_thief_is_innocent" is disabled
 ```
 
 # Special Thanks

@@ -14,6 +14,13 @@ if CLIENT then
     SWEP.PrintName          = "Stove Placer"
     SWEP.Slot               = 8
 
+    SWEP.EquipMenuData = {
+        type = "item_weapon",
+        desc = "Places a stove with different food types, providing different buffs."
+    }
+
+    SWEP.Icon = "vgui/ttt/icon_stoveplacer"
+
     SWEP.ViewModelFOV       = 60
     SWEP.DrawCrosshair      = false
     SWEP.ViewModelFlip      = false
@@ -35,7 +42,7 @@ SWEP.DeploySpeed            = 4
 SWEP.AllowDrop              = false
 SWEP.NoSights               = true
 SWEP.UseHands               = true
-SWEP.LimitedStock           = true
+SWEP.LimitedStock           = false
 SWEP.AmmoEnt                = nil
 
 SWEP.InLoadoutFor           = {ROLE_CHEF}

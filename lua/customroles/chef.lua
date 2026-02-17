@@ -114,10 +114,10 @@ ROLE.translations = {
     ["english"] = {
         ["chf_stove_name"] = "Stove",
         ["chf_stove_name_health"] = "Stove ({current}/{max})",
-        ["chf_stove_hint_start"] = "Press {usekey} to start cooking",
-        ["chf_stove_hint_progress"] = "Cooking: {time} remaining",
-        ["chf_stove_hint_retrieve_2"] = "Press {usekey} to retrieve cooked food before it burns in {time}!",
-        ["chf_stove_hint_retrieve_3"] = "Press {usekey} to retrieve burnt food",
+        ["chf_stove_hint_start"] = "Press {usekey} to start cooking a {food}",
+        ["chf_stove_hint_progress"] = "Cooking a {food}: {time} remaining",
+        ["chf_stove_hint_retrieve_2"] = "Press {usekey} to retrieve cooked {food} before it burns in {time}!",
+        ["chf_stove_hint_retrieve_3"] = "Press {usekey} to retrieve burnt {food}",
         ["chf_stove_damaged"] = "Your Stove has been damaged!",
         ["chf_stove_help_pri"] = "Use {primaryfire} to place your Stove on the ground",
         ["chf_stove_help_sec"] = "Use {secondaryfire} to change the food and buff type",
@@ -156,6 +156,7 @@ local fish_amount = CreateConVar("ttt_chef_fish_amount", "0.5", FCVAR_REPLICATED
 local burnt_time = CreateConVar("ttt_chef_burnt_time", "30", FCVAR_REPLICATED, "The amount of time the burnt food effect should last", 1, 120)
 local burnt_interval = CreateConVar("ttt_chef_burnt_interval", "1", FCVAR_REPLICATED, "How often the burnt food eater's health should be removed", 1, 60)
 local burnt_amount = CreateConVar("ttt_chef_burnt_amount", "1", FCVAR_REPLICATED, "The amount of the burnt food eater's health to remove per interval", 1, 50)
+local placer_buyable = CreateConVar("ttt_chef_placer_buyable", "1", FCVAR_REPLICATED, "Whether the Chef's Stove Placer is buyable in their shop. Only used when \"ttt_chef_is_detective\" is enabled", 0, 1)
 
 -- Detective ConVars
 CreateConVar("ttt_chef_credits_starting", "1", FCVAR_REPLICATED)
@@ -195,6 +196,13 @@ AddHook("TTTUpdateRoleState", "Chef_TTTUpdateRoleState", function()
     local detective = is_detective:GetBool()
     DETECTIVE_ROLES[ROLE_CHEF] = detective
     SHOP_ROLES[ROLE_CHEF] = detective
+
+    local placer = weapons.GetStored("weapon_chf_stoveplacer")
+    if placer_buyable:GetBool() then
+        placer.CanBuy = {ROLE_CHEF}
+    else
+        placer.CanBuy = nil
+    end
 end)
 
 if SERVER then

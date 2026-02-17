@@ -41,6 +41,8 @@ if CLIENT then
                 if not IsPlayer(placer) then return nil end
                 if placer ~= client then return nil end
 
+                hint_params.food = LANG.GetTranslation("chf_stove_type_" .. stove:GetFoodType())
+
                 local hint = txt
                 local state = stove:GetState()
                 if state == CHEF_STOVE_STATE_COOKING then
