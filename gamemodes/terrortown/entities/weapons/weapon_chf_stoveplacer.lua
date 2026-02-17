@@ -169,6 +169,15 @@ function SWEP:SecondaryAttack()
     if self.SelectedFoodType > CHEF_FOOD_TYPE_FISH then
         self.SelectedFoodType = CHEF_FOOD_TYPE_NONE
     end
+
+    if CLIENT then return end
+
+    local owner = self:GetOwner()
+    if not IsPlayer(owner) then return end
+
+    net.Start("TTTChefFoodChanged")
+        net.WriteUInt(self.SelectedFoodType, 3)
+    net.Send(owner)
 end
 
 function SWEP:ViewModelDrawn()

@@ -134,6 +134,12 @@ ROLE.translations = {
     }
 }
 
+-- Role features
+CHEF_FOOD_TYPE_NONE = 0
+CHEF_FOOD_TYPE_BURGER = 1
+CHEF_FOOD_TYPE_HOTDOG = 2
+CHEF_FOOD_TYPE_FISH = 3
+
 ------------------
 -- ROLE CONVARS --
 ------------------
@@ -193,6 +199,7 @@ end)
 
 if SERVER then
     util.AddNetworkString("TTTChefFoodRemoveHooks")
+    util.AddNetworkString("TTTChefFoodChanged")
 
     -------------------
     -- ROLE FEATURES --
@@ -268,6 +275,16 @@ if CLIENT then
         RemoveBuffs(client)
     end)
 
+    net.Receive("TTTChefFoodChanged", function()
+        if not IsValid(client) then
+            client = LocalPlayer()
+        end
+
+        local foodType = net.ReadUInt(3)
+        client:ClearQueuedMessage("chefFoodType")
+        client:QueueMessage(MSG_PRINTCENTER, LANG.GetTranslation("chf_stove_type_label") .. LANG.GetTranslation("chf_stove_type_" .. foodType), nil, "chefFoodType")
+    end)
+
     --------------
     -- TUTORIAL --
     --------------
@@ -308,12 +325,6 @@ if CLIENT then
 end
 
 RegisterRole(ROLE)
-
--- Role features
-CHEF_FOOD_TYPE_NONE = 0
-CHEF_FOOD_TYPE_BURGER = 1
-CHEF_FOOD_TYPE_HOTDOG = 2
-CHEF_FOOD_TYPE_FISH = 3
 
 -------------
 -- CLEANUP --
