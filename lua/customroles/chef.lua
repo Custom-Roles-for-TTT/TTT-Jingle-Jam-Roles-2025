@@ -145,7 +145,12 @@ ROLE.translations = {
         ["chf_buff_type_0"] = "None",
         ["chf_buff_type_1"] = "Speed Boost",
         ["chf_buff_type_2"] = "Health Regen.",
-        ["chf_buff_type_3"] = "Damage Boost"
+        ["chf_buff_type_3"] = "Damage Boost",
+        ["info_popup_chef_detective"] =[[You are {role}! As {adetective}, HQ has given you special resources to find the {traitors}.
+Place down a stove with your chosen food to cook up some buffs
+for your friends, and damage for your foes.
+
+Press {menukey} to receive your equipment!]]
     }
 }
 
@@ -317,6 +322,18 @@ if CLIENT then
         local foodType = net.ReadUInt(3)
         client:ClearQueuedMessage("chefFoodType")
         client:QueueMessage(MSG_PRINTCENTER, LANG.GetTranslation("chf_stove_type_label") .. LANG.GetTranslation("chf_stove_type_" .. foodType), nil, "chefFoodType")
+    end)
+
+    ----------------
+    -- ROLE POPUP --
+    ----------------
+
+    hook.Add("TTTRolePopupRoleStringOverride", "Chef_TTTRolePopupRoleStringOverride", function(cli, roleString)
+        if not IsPlayer(cli) or not cli:IsChef() then return end
+
+        if DETECTIVE_ROLES[ROLE_CHEF] then
+            return roleString .. "_detective"
+        end
     end)
 
     --------------
