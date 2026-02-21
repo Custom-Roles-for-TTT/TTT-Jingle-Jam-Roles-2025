@@ -8,6 +8,7 @@ local MathRand = math.Rand
 local MathRandom = math.random
 
 if CLIENT then
+    ENT.PrintName = "ysm_dog_name"
     ENT.TargetIDHint = function(dog)
         local client = LocalPlayer()
         if not IsPlayer(client) then return end
