@@ -224,7 +224,7 @@ if SERVER then
         for _, v in PlayerIterator() do
             SafeRemoveEntity(v.TTTYorkshiremanDog)
             v.TTTYorkshiremanDog = nil
-            v:ClearProperty("TTTYorkshiremanCollected", v)
+            v:ClearProperty("TTTYorkshiremanCollected")
             v:ClearProperty("TTTYorkshiremanCooldownEnd", v)
         end
     end)
