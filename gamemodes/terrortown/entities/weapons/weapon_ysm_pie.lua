@@ -77,6 +77,8 @@ if CLIENT then
     ScaleModel(SWEP.ClientWorldModel, 0.5)
 
     function SWEP:DrawWorldModel(flags)
+        if not IsValid(self.ClientWorldModel) or self.ClientWorldModel == NULL then return end
+
         local owner = self:GetOwner()
 
         if IsValid(owner) then
