@@ -107,6 +107,20 @@ ROLE.convars =
         cvar = "ttt_chef_burnt_amount",
         type = ROLE_CONVAR_TYPE_NUM,
         decimal = 0
+    },
+    {
+        cvar = "ttt_chef_placer_buyable",
+        type = ROLE_CONVAR_TYPE_BOOL
+    },
+    {
+        cvar = "ttt_chef_overcook_fire_time",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
+    },
+    {
+        cvar = "ttt_chef_overcook_fire_lifetime",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
     }
 }
 
@@ -114,10 +128,11 @@ ROLE.translations = {
     ["english"] = {
         ["chf_stove_name"] = "Stove",
         ["chf_stove_name_health"] = "Stove ({current}/{max})",
-        ["chf_stove_hint_start"] = "Press {usekey} to start cooking",
-        ["chf_stove_hint_progress"] = "Cooking: {time} remaining",
-        ["chf_stove_hint_retrieve_2"] = "Press {usekey} to retrieve cooked food before it burns in {time}!",
-        ["chf_stove_hint_retrieve_3"] = "Press {usekey} to retrieve burnt food",
+        ["chf_stove_hint_start"] = "Press {usekey} to start cooking a {food}",
+        ["chf_stove_hint_onfire"] = "Overheated",
+        ["chf_stove_hint_progress"] = "Cooking a {food}: {time} remaining",
+        ["chf_stove_hint_retrieve_2"] = "Press {usekey} to retrieve cooked {food} before it burns in {time}!",
+        ["chf_stove_hint_retrieve_3"] = "Press {usekey} to retrieve burnt {food}",
         ["chf_stove_damaged"] = "Your Stove has been damaged!",
         ["chf_stove_help_pri"] = "Use {primaryfire} to place your Stove on the ground",
         ["chf_stove_help_sec"] = "Use {secondaryfire} to change the food and buff type",
@@ -130,9 +145,20 @@ ROLE.translations = {
         ["chf_buff_type_0"] = "None",
         ["chf_buff_type_1"] = "Speed Boost",
         ["chf_buff_type_2"] = "Health Regen.",
-        ["chf_buff_type_3"] = "Damage Boost"
+        ["chf_buff_type_3"] = "Damage Boost",
+        ["info_popup_chef_detective"] =[[You are {role}! As {adetective}, HQ has given you special resources to find the {traitors}.
+Place down a stove with your chosen food to cook up some buffs
+for your friends, and damage for your foes.
+
+Press {menukey} to receive your equipment!]]
     }
 }
+
+-- Role features
+CHEF_FOOD_TYPE_NONE = 0
+CHEF_FOOD_TYPE_BURGER = 1
+CHEF_FOOD_TYPE_HOTDOG = 2
+CHEF_FOOD_TYPE_FISH = 3
 
 ------------------
 -- ROLE CONVARS --
@@ -150,6 +176,7 @@ local fish_amount = CreateConVar("ttt_chef_fish_amount", "0.5", FCVAR_REPLICATED
 local burnt_time = CreateConVar("ttt_chef_burnt_time", "30", FCVAR_REPLICATED, "The amount of time the burnt food effect should last", 1, 120)
 local burnt_interval = CreateConVar("ttt_chef_burnt_interval", "1", FCVAR_REPLICATED, "How often the burnt food eater's health should be removed", 1, 60)
 local burnt_amount = CreateConVar("ttt_chef_burnt_amount", "1", FCVAR_REPLICATED, "The amount of the burnt food eater's health to remove per interval", 1, 50)
+local placer_buyable = CreateConVar("ttt_chef_placer_buyable", "1", FCVAR_REPLICATED, "Whether the Chef's Stove Placer is buyable in their shop. Only used when \"ttt_chef_is_detective\" is enabled", 0, 1)
 
 -- Detective ConVars
 CreateConVar("ttt_chef_credits_starting", "1", FCVAR_REPLICATED)
@@ -189,10 +216,18 @@ AddHook("TTTUpdateRoleState", "Chef_TTTUpdateRoleState", function()
     local detective = is_detective:GetBool()
     DETECTIVE_ROLES[ROLE_CHEF] = detective
     SHOP_ROLES[ROLE_CHEF] = detective
+
+    local placer = weapons.GetStored("weapon_chf_stoveplacer")
+    if placer_buyable:GetBool() then
+        placer.CanBuy = {ROLE_CHEF}
+    else
+        placer.CanBuy = nil
+    end
 end)
 
 if SERVER then
     util.AddNetworkString("TTTChefFoodRemoveHooks")
+    util.AddNetworkString("TTTChefFoodChanged")
 
     -------------------
     -- ROLE FEATURES --
@@ -229,10 +264,38 @@ if SERVER then
         ply.TTTChefHat = nil
     end)
 
-    -- Remove buffs when a player dies
-    AddHook("PostPlayerDeath", "Chef_PostPlayerDeath_Cleanup", function(ply)
+    -- Remove buffs and move the hat to the ragdoll (or hide it) when a player dies
+    AddHook("PostPlayerDeath", "Chef_PostPlayerDeath", function(ply)
         if not IsPlayer(ply) then return end
+        if IsValid(ply.TTTChefHat) then
+            local ragdoll = ply.server_ragdoll or ply:GetRagdollEntity()
+            if IsValid(ragdoll) then
+                ply.TTTChefHat:SetParent(ragdoll)
+            else
+                ply.TTTChefHat:SetNoDraw(true)
+            end
+        end
         RemoveBuffs(ply)
+    end)
+
+    -- Show the hat on the player again if they get respawned
+    AddHook("PlayerSpawn", "Chef_PlayerSpawn", function(ply, transition)
+        if not IsPlayer(ply) then return end
+        if IsValid(ply.TTTChefHat) then
+            ply.TTTChefHat:SetParent(ply)
+            ply.TTTChefHat:SetNoDraw(false)
+        end
+    end)
+
+    AddHook("TTTSmokeGrenadeShouldExtinguish", "Chef_TTTSmokeGrenadeShouldExtinguish", function(ent, pos)
+        if not IsValid(ent) then return end
+        if ent:GetClass() ~= "ttt_chef_stove" then return end
+
+        if ent.OnFire then
+            ent:RemoveFire()
+            -- extinguish, remove
+            return true  , false
+        end
     end)
 end
 
@@ -249,6 +312,28 @@ if CLIENT then
             client = LocalPlayer()
         end
         RemoveBuffs(client)
+    end)
+
+    net.Receive("TTTChefFoodChanged", function()
+        if not IsValid(client) then
+            client = LocalPlayer()
+        end
+
+        local foodType = net.ReadUInt(3)
+        client:ClearQueuedMessage("chefFoodType")
+        client:QueueMessage(MSG_PRINTCENTER, LANG.GetTranslation("chf_stove_type_label") .. LANG.GetTranslation("chf_stove_type_" .. foodType), nil, "chefFoodType")
+    end)
+
+    ----------------
+    -- ROLE POPUP --
+    ----------------
+
+    hook.Add("TTTRolePopupRoleStringOverride", "Chef_TTTRolePopupRoleStringOverride", function(cli, roleString)
+        if not IsPlayer(cli) or not cli:IsChef() then return end
+
+        if DETECTIVE_ROLES[ROLE_CHEF] then
+            return roleString .. "_detective"
+        end
     end)
 
     --------------
@@ -291,12 +376,6 @@ if CLIENT then
 end
 
 RegisterRole(ROLE)
-
--- Role features
-CHEF_FOOD_TYPE_NONE = 0
-CHEF_FOOD_TYPE_BURGER = 1
-CHEF_FOOD_TYPE_HOTDOG = 2
-CHEF_FOOD_TYPE_FISH = 3
 
 -------------
 -- CLEANUP --

@@ -159,6 +159,7 @@ function SWEP:PrimaryAttack()
         safePos.z = safePos.z + 5
     -- If we didn't find a place, let the user know and don't actually place the safe
     else
+        owner:ClearQueuedMessage("sfkInvalidDrop")
         owner:QueueMessage(MSG_PRINTBOTH, "Could not find valid location for safe! Try somewhere else.", nil, "sfkInvalidDrop")
         return
     end

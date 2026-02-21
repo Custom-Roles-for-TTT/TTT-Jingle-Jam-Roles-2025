@@ -87,6 +87,11 @@ ROLE.convars =
         cvar = "ttt_thief_steal_proximity_distance",
         type = ROLE_CONVAR_TYPE_NUM,
         decimal = 0
+    },
+    {
+        cvar = "ttt_thief_steal_to_win",
+        type = ROLE_CONVAR_TYPE_NUM,
+        decimal = 0
     }
 }
 
@@ -100,11 +105,14 @@ ROLE.translations =
         ["thfsteal_stealing"] = "STEALING FROM {target}",
         ["thfsteal_failed"] = "STEALING FAILED",
         ["thief_credits_hud"] = "Current Credits: {credits}",
-        ["thief_cooldown_hud"] = "Steal cooldown: {time}",
+        ["thief_collect_hud"] = "Stolen Weapons: {stolen}/{total}",
+        ["thief_cooldown_hud"] = "Steal Cooldown: {time}",
         ["thief_steal_notify"] = "You stole \"{item}\" from {victim}!",
         ["win_thief"] = "The {role} has stolen its way to victory!",
         ["ev_win_thief"] = "The {role} has stolen its way to victory!",
-        ["ev_thiefstolen"] = "{thief} stole \"{item}\" from {victim}"
+        ["ev_thiefstolen"] = "{thief} stole \"{item}\" from {victim}",
+        ["score_thf_stole"] = "Stole",
+        ["score_thf_weapons"] = "{count} Weapon(s)"
     }
 }
 
@@ -130,6 +138,7 @@ local thief_steal_cost = CreateConVar("ttt_thief_steal_cost", "0", FCVAR_REPLICA
 local thief_steal_notify_delay_min = CreateConVar("ttt_thief_steal_notify_delay_min", "10", FCVAR_REPLICATED, "The minimum delay before a player is notified they've been robbed. Set to \"0\" to disable notifications", 0, 30)
 local thief_steal_notify_delay_max = CreateConVar("ttt_thief_steal_notify_delay_max", "30", FCVAR_REPLICATED, "The maximum delay before a player is notified they've been robbed", 3, 60)
 local thief_steal_proximity_time = CreateConVar("ttt_thief_steal_proximity_time", "15", FCVAR_REPLICATED, "How long (in seconds) it takes the Thief to steal something from a target. Only used when \"ttt_thief_steal_mode 0\" is set", 1, 60)
+local thief_steal_to_win = CreateConVar("ttt_thief_steal_to_win", "0", FCVAR_REPLICATED, "How many weapons the Thief has to steal to get a secondary win. If set to \"0\", the Thief must be the last player standing to win. Only used if \"ttt_thief_is_innocent\" and \"ttt_thief_is_traitor\" are both disabled", 0, 25)
 
 -------------------
 -- ROLE FEATURES --
@@ -146,6 +155,9 @@ AddHook("TTTUpdateRoleState", "Thief_TTTUpdateRoleState", function()
     -- Only let thieves loot credits if they have something that costs credits
     -- NOTE: If they are on the traitor team, this is ignored so we don't have to even bother checking
     CAN_LOOT_CREDITS_ROLES[ROLE_THIEF] = thief_steal_cost:GetInt() > 0
+
+    -- The Thief is a passive independent if they are trying to steal to win
+    ROLE_HAS_PASSIVE_WIN[ROLE_THIEF] = INDEPENDENT_ROLES[ROLE_THIEF] and thief_steal_to_win:GetInt() > 0
 
     if SERVER then
         local tools = weapons.GetStored("weapon_thf_thievestools")
@@ -247,7 +259,8 @@ if SERVER then
                 self:SetProperty("TTTThiefStealState", THIEF_STEAL_STATE_LOST, self)
                 self:SetProperty("TTTThiefStealStartTime", curTime + steal_failure_cooldown, self)
             end
-            self:QueueMessage(MSG_PRINTCENTER, target:Nick() .. " has nothing worth stealing, try someone else!")
+            self:ClearQueuedMessage("thfStealFailed")
+            self:QueueMessage(MSG_PRINTCENTER, target:Nick() .. " has nothing worth stealing, try someone else!", nil, "thfStealFailed")
             return
         end
 
@@ -267,6 +280,7 @@ if SERVER then
         end
         self:SetProperty("TTTThiefStealState", THIEF_STEAL_STATE_COOLDOWN, self)
         self:SetProperty("TTTThiefStealStartTime", curTime, self)
+        self:SetProperty("TTTThiefStolen", (self.TTTThiefStolen or 0) + 1, self)
 
         net.Start("TTT_ThiefItemStolen")
             net.WritePlayer(self)
@@ -484,11 +498,10 @@ if SERVER then
         if not ply:IsActiveThief() then return end
         if not IsValid(wep) then return end
         if wep.Kind == WEAPON_MELEE then return end
+        if wep.TTTThiefStolenWeapon then return end
 
         local wepClass = WEPS.GetClass(wep)
-        if ply.TTTThiefStolenWeapon and ply.TTTThiefStolenWeapon.class == wepClass then
-            return true
-        end
+        if ply.TTTThiefStolenWeapon and ply.TTTThiefStolenWeapon.class == wepClass then return end
 
         if not TableHasValue(allowedWeaponClasses, wepClass) then
             return false
@@ -517,12 +530,21 @@ if SERVER then
         end
     end)
 
+    -- Mark this as a weapon that the thief had previously stolen so they can pick it up again later
+    AddHook("PlayerDroppedWeapon", "Thief_PlayerDroppedWeapon", function(ply, wep)
+        if not IsValid(ply) then return end
+        if not IsValid(wep) then return end
+        if not ply:IsThief() then return end
+        wep.TTTThiefStolenWeapon = true
+    end)
+
     ----------------
     -- WIN CHECKS --
     ----------------
 
     AddHook("TTTCheckForWin", "Thief_TTTCheckForWin", function()
         if not INDEPENDENT_ROLES[ROLE_THIEF] then return end
+        if ROLE_HAS_PASSIVE_WIN[ROLE_THIEF] then return end
 
         local thief_alive = false
         local other_alive = false
@@ -538,6 +560,8 @@ if SERVER then
 
         if thief_alive and not other_alive then
             return WIN_THIEF
+        elseif thief_alive then
+            return WIN_NONE
         end
     end)
 
@@ -557,6 +581,7 @@ if SERVER then
         for _, v in PlayerIterator() do
             v.TTTThiefStolenWeapon = nil
             v.TTTThiefDisabled = false
+            v:ClearProperty("TTTThiefStolen", v)
             v:ClearProperty("TTTThiefStealTarget", v)
             v:ClearProperty("TTTThiefStealStartTime", v)
             v:ClearProperty("TTTThiefStealLostTime", v)
@@ -654,6 +679,34 @@ if CLIENT then
             surface.SetTextPos(label_left, ScrH() - label_top - h)
             surface.DrawText(text)
 
+            -- Reset this back to where it was
+            label_left = label_left - 20
+
+            -- Track that the label was added so others can position accurately
+            TableInsert(active_labels, "thiefCredits")
+        end
+
+        local steal_to_win = thief_steal_to_win:GetInt()
+        if steal_to_win > 0 then
+            local stolen = cli.TTTThiefStolen or 0
+            if stolen >= steal_to_win then
+                surface.SetTextColor(0, 200, 0, 230)
+            else
+                surface.SetTextColor(255, 255, 255, 230)
+            end
+            text = LANG.GetParamTranslation("thief_collect_hud", {stolen = stolen, total = steal_to_win})
+            _, h = surface.GetTextSize(text)
+
+            -- Move this up based on how many other labels there are
+            if steal_cost then
+                label_top = label_top + 20
+            else
+                label_top = label_top + (20 * #active_labels)
+            end
+
+            surface.SetTextPos(label_left, ScrH() - label_top - h)
+            surface.DrawText(text)
+
             -- Track that the label was added so others can position accurately
             TableInsert(active_labels, "thiefCredits")
         end
@@ -666,9 +719,8 @@ if CLIENT then
         _, h = surface.GetTextSize(text)
 
         -- Move this up based on how many other labels there are
-        if steal_cost then
+        if steal_cost or steal_to_win > 0 then
             label_top = label_top + 20
-            label_left = label_left - 20
         else
             label_top = label_top + (20 * #active_labels)
         end
@@ -692,6 +744,22 @@ if CLIENT then
     AddHook("TTTScoringWinTitle", "Thief_TTTScoringWinTitle", function(wintype, wintitles, title, secondary_win_role)
         if wintype == WIN_THIEF then
             return { txt = "hilite_win_role_singular", params = { role = utf8.upper(ROLE_STRINGS[ROLE_THIEF]) }, c = ROLE_COLORS[ROLE_THIEF] }
+        end
+    end)
+
+    AddHook("TTTScoringSecondaryWins", "Thief_TTTScoringSecondaryWins", function(wintype, secondary_wins)
+        -- The Thief only gets a secondary win if they are passive
+        if not ROLE_HAS_PASSIVE_WIN[ROLE_THIEF] then return end
+
+        local steal_to_win = thief_steal_to_win:GetInt()
+        for _, p in PlayerIterator() do
+            if not p:IsThief() then continue end
+
+            local stolen = p.TTTThiefStolen or 0
+            if stolen >= steal_to_win then
+                TableInsert(secondary_wins, ROLE_THIEF)
+                return
+            end
         end
     end)
 
@@ -748,8 +816,16 @@ if CLIENT then
 
         if not IsPlayer(thief) then return end
 
-        local message = LANG.GetParamTranslation("thief_steal_notify", {item = item, victim = victim})
-        thief:QueueMessage(MSG_PRINTBOTH, message)
+        -- If this client is the thief that did the stealing, use this
+        -- method to also notify them of what they stole
+        if not client then
+            client = LocalPlayer()
+        end
+        if client == thief then
+            local message = LANG.GetParamTranslation("thief_steal_notify", {item = item, victim = victim})
+            client:ClearQueuedMessage("thfStealFailed")
+            client:QueueMessage(MSG_PRINTBOTH, message)
+        end
 
         CLSCORE:AddEvent({
             id = EVENT_THIEFSTOLEN,
@@ -757,6 +833,18 @@ if CLIENT then
             vic = victim,
             item = item
         })
+    end)
+
+    AddHook("TTTScoringSummaryRender", "Thief_TTTScoringSummaryRender", function(ply, roleFileName, groupingRole, roleColor, name, startingRole, finalRole)
+        if not IsPlayer(ply) then return end
+        if not ply:IsThief() then return end
+
+        local stolen = ply.TTTThiefStolen or 0
+        local steal_to_win = thief_steal_to_win:GetInt()
+        if steal_to_win > 0 then
+            stolen = stolen .. "/" .. steal_to_win
+        end
+        return roleFileName, groupingRole, roleColor, name, LANG.GetParamTranslation("score_thf_weapons", {count = stolen}), LANG.GetTranslation("score_thf_stole")
     end)
 
     ----------------
@@ -770,7 +858,12 @@ if CLIENT then
             comrades = ""
         }
         if cli:IsIndependentTeam() then
-            params.comrades = "Kill all others to win!\n"
+            if ROLE_HAS_PASSIVE_WIN[ROLE_THIEF] then
+                local steal_to_win = thief_steal_to_win:GetInt()
+                params.comrades = "Steal " .. steal_to_win .. " weapon(s) to win!\n"
+            else
+                params.comrades = "Kill all others to win!\n"
+            end
         else cli:IsInnocentTeam()
             params.comrades = "Work with your team to win!\n"
         end
@@ -798,19 +891,24 @@ if CLIENT then
         if role == ROLE_THIEF then
             local roleColor
             local html = "The " .. ROLE_STRINGS[ROLE_THIEF] .. " is "
-            local winCondition
+            local winCondition = "steal weapons from their enemies and"
             if INDEPENDENT_ROLES[ROLE_THIEF] then
                 roleColor = GetRoleTeamColor(ROLE_TEAM_INDEPENDENT)
                 html = html .. "an <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>independent role</span> role"
-                winCondition = "be the last player standing"
+                local steal_to_win = thief_steal_to_win:GetInt()
+                if steal_to_win > 0 then
+                    winCondition = "steal " .. steal_to_win .. " weapon(s) from other players"
+                else
+                    winCondition = winCondition .. " be the last player standing"
+                end
             else
                 local roleTeam = player.GetRoleTeam(ROLE_THIEF, true)
                 local roleTeamName
                 roleTeamName, roleColor = GetRoleTeamInfo(roleTeam)
                 html = html .. "a member of the <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>" .. roleTeamName .. " team</span>"
-                winCondition = "help their team win"
+                winCondition = winCondition .. " help their team win"
             end
-            html = html .. " whose goal is to steal weapons from their enemies and " .. winCondition .. "."
+            html = html .. " whose goal is to " .. winCondition .. "."
 
             -- Steal mode
             local steal_mode = thief_steal_mode:GetInt()

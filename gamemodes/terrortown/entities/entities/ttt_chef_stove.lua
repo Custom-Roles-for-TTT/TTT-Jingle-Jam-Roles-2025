@@ -41,9 +41,13 @@ if CLIENT then
                 if not IsPlayer(placer) then return nil end
                 if placer ~= client then return nil end
 
+                hint_params.food = LANG.GetTranslation("chf_stove_type_" .. stove:GetFoodType())
+
                 local hint = txt
                 local state = stove:GetState()
-                if state == CHEF_STOVE_STATE_COOKING then
+                if stove:GetOnFire() then
+                    hint = hint .. "_onfire"
+                elseif state == CHEF_STOVE_STATE_COOKING then
                     local remaining = stove:GetEndTime() - CurTime()
                     hint_params.time = util.SimpleTime(remaining, "%02i:%02i")
                     hint = hint .. "_progress"
@@ -79,12 +83,15 @@ end
 
 local cook_time = CreateConVar("ttt_chef_cook_time", "30", FCVAR_REPLICATED, "How long (in seconds) it takes to cook food", 1, 60)
 local overcook_time = CreateConVar("ttt_chef_overcook_time", "5", FCVAR_REPLICATED, "How long (in seconds) after food is finished cooking before it burns", 1, 60)
+local overcook_fire_time = CreateConVar("ttt_chef_overcook_fire_time", "30", FCVAR_REPLICATED, "How long (in seconds) after food is burnt before it the stove catches fire. Set to \"0\" to disable", 0, 60)
+local overcook_fire_lifetime = CreateConVar("ttt_chef_overcook_fire_lifetime", "20", FCVAR_REPLICATED, "How long (in seconds) the stove stays on fire once it ignites. Only used when \"ttt_chef_overcook_fire_time\" is greater than 0", 1, 60)
 
 AccessorFuncDT(ENT, "FoodType", "FoodType")
 AccessorFuncDT(ENT, "EndTime", "EndTime")
 AccessorFuncDT(ENT, "OvercookTime", "OvercookTime")
 AccessorFuncDT(ENT, "State", "State")
 AccessorFuncDT(ENT, "Placer", "Placer")
+AccessorFuncDT(ENT, "OnFire", "OnFire")
 
 function ENT:SetupDataTables()
    self:DTVar("Int", 0, "FoodType")
@@ -92,6 +99,7 @@ function ENT:SetupDataTables()
    self:DTVar("Int", 2, "OvercookTime")
    self:DTVar("Int", 3, "State")
    self:DTVar("Entity", 0, "Placer")
+   self:DTVar("Bool", 0, "OnFire")
 end
 
 function ENT:Initialize()
@@ -126,25 +134,41 @@ function ENT:Think()
         return
     end
 
-    if SERVER and state <= CHEF_STOVE_STATE_DONE then
-        local endTime = self:GetEndTime()
-        if endTime <= CurTime() then
-            if self:GetOvercookTime() <= CurTime() then
-                self:SetState(CHEF_STOVE_STATE_BURNT)
-            elseif state ~= CHEF_STOVE_STATE_DONE then
-                self:SetState(CHEF_STOVE_STATE_DONE)
+    local curTime = CurTime()
+    if SERVER then
+        if state <= CHEF_STOVE_STATE_DONE then
+            self.FireEndTime = 0
+
+            local endTime = self:GetEndTime()
+            if endTime <= curTime then
+                if self:GetOvercookTime() <= curTime then
+                    self:SetState(CHEF_STOVE_STATE_BURNT)
+                elseif state ~= CHEF_STOVE_STATE_DONE then
+                    self:SetState(CHEF_STOVE_STATE_DONE)
+                end
+            end
+        -- If we're on fire, automatically remove it after enough time
+        elseif self:GetOnFire() then
+            if curTime >= self.FireEndTime then
+                self:RemoveFire()
+            end
+        -- If we haven't already been extinguished, check if it's time to add the fire
+        elseif self.FireEndTime ~= nil then
+            local timeBurnt = curTime - self:GetOvercookTime()
+            if timeBurnt > overcook_fire_time:GetInt() then
+                self:AddFire()
             end
         end
     elseif CLIENT then
         if not self.SmokeEmitter then self.SmokeEmitter = ParticleEmitter(self:GetPos()) end
-        if not self.SmokeNextPart then self.SmokeNextPart = CurTime() end
+        if not self.SmokeNextPart then self.SmokeNextPart = curTime end
         local pos = self:GetPos() + self.SmokeOffset
         -- Use DistToSqr as it's more efficient and this is called very frequently
         -- 9000000 = 3000^2
         local client = LocalPlayer()
-        if self.SmokeNextPart < CurTime() and client:GetPos():DistToSqr(pos) <= 9000000 then
+        if self.SmokeNextPart < curTime and client:GetPos():DistToSqr(pos) <= 9000000 then
             self.SmokeEmitter:SetPos(pos)
-            self.SmokeNextPart = CurTime() + MathRand(0.003, 0.01)
+            self.SmokeNextPart = curTime + MathRand(0.003, 0.01)
             local vec = Vector(MathRand(-8, 8), MathRand(-8, 8), MathRand(10, 55))
             local particle = self.SmokeEmitter:Add(self.SmokeParticle, self:LocalToWorld(vec))
             particle:SetVelocity(Vector(0, 0, 4) + VectorRand() * 3)
@@ -164,11 +188,11 @@ function ENT:Think()
                 if state == CHEF_STOVE_STATE_DONE then
                     startColor = self.SmokeColorCooked
                     endColor = self.SmokeColorBurnt
-                    progress = (self:GetOvercookTime() - CurTime()) / overcook_time:GetInt()
+                    progress = (self:GetOvercookTime() - curTime) / overcook_time:GetInt()
                 else
                     startColor = self.SmokeColorStart
                     endColor = self.SmokeColorCooked
-                    progress = (self:GetEndTime() - CurTime()) / cook_time:GetInt()
+                    progress = (self:GetEndTime() - curTime) / cook_time:GetInt()
                 end
 
                 smokeColor = {
@@ -183,12 +207,18 @@ function ENT:Think()
 end
 
 if SERVER then
+    ENT.FireEndTime = nil
+    ENT.BlastRadius = 50
+    ENT.BlastDamage = 10
+
     local damage_own_stove = CreateConVar("ttt_chef_damage_own_stove", "0", FCVAR_NONE, "Whether a stove's owner can damage it", 0, 1)
     local warn_damage = CreateConVar("ttt_chef_warn_damage", "1", FCVAR_NONE, "Whether to warn a stove's owner is warned when it is damaged", 0, 1)
     local warn_destroy = CreateConVar("ttt_chef_warn_destroy", "1", FCVAR_NONE, "Whether to warn a stove's owner is warned when it is destroyed", 0, 1)
 
     function ENT:OnTakeDamage(dmginfo)
         local att = dmginfo:GetAttacker()
+        if not IsPlayer(att) then return end
+
         local placer = self:GetPlacer()
         if not IsPlayer(placer) then return end
 
@@ -212,6 +242,7 @@ if SERVER then
     end
 
     function ENT:Use(activator)
+        if self:GetOnFire() then return end
         if not IsPlayer(activator) or not activator:IsActive() then return end
 
         local placer = self:GetPlacer()
@@ -251,6 +282,45 @@ if SERVER then
         effect:SetOrigin(self:GetPos())
         util.Effect("cball_explode", effect)
         self:Remove()
+    end
+
+    function ENT:AddFire()
+        local placer = self:GetPlacer()
+        if not IsPlayer(placer) then return end
+
+        local curTime = CurTime()
+        local pos = self:GetPos() + Vector(0, 0, 50)
+
+        self.FireEndTime = curTime + overcook_fire_lifetime:GetInt()
+        self:SetOnFire(true)
+
+        -- Spawn flame entity right on top
+        local flame = CreateEntity("ttt_flame")
+        flame:SetPos(pos)
+        flame:SetDamageParent(placer)
+        flame:SetOwner(placer)
+        flame:SetDieTime(self.FireEndTime)
+        flame:SetExplodeOnDeath(false)
+        flame:Spawn()
+        self.FireEnt = flame
+
+        -- And explode a little bit
+        local effect = EffectData()
+        effect:SetStart(pos)
+        effect:SetOrigin(pos)
+        effect:SetScale(self.BlastRadius * 0.3)
+        effect:SetRadius(self.BlastRadius)
+        effect:SetMagnitude(self.BlastDamage)
+        util.Effect("Explosion", effect, true, true)
+        util.BlastDamage(self, placer, pos, self.BlastRadius, self.BlastDamage)
+    end
+
+    function ENT:RemoveFire()
+        if not self:GetOnFire() then return end
+        SafeRemoveEntity(self.FireEnt)
+        self.FireEnt = nil
+        self.FireEndTime = nil
+        self:SetOnFire(false)
     end
 
     -- Copied from C4

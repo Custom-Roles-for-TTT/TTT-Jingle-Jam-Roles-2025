@@ -60,7 +60,7 @@ AddHook("TTTScoringSummaryRender", "Randoswapper_TTTScoringSummaryRender", funct
     if not IsPlayer(ply) then return end
 
     if ply:IsRandoswapper() then
-        local swappedWith = ply:GetNWString("SwappedWith", "")
+        local swappedWith = ply:GetNWString("RandoswappedWith", "")
         if #swappedWith > 0 then
             return roleFileName, groupingRole, roleColor, name, swappedWith, LANG.GetTranslation("score_randoswapper_killed")
         end

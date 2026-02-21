@@ -14,6 +14,13 @@ if CLIENT then
     SWEP.PrintName          = "Stove Placer"
     SWEP.Slot               = 8
 
+    SWEP.EquipMenuData = {
+        type = "item_weapon",
+        desc = "Places a stove with different food types, providing different buffs."
+    }
+
+    SWEP.Icon = "vgui/ttt/icon_stoveplacer"
+
     SWEP.ViewModelFOV       = 60
     SWEP.DrawCrosshair      = false
     SWEP.ViewModelFlip      = false
@@ -35,7 +42,7 @@ SWEP.DeploySpeed            = 4
 SWEP.AllowDrop              = false
 SWEP.NoSights               = true
 SWEP.UseHands               = true
-SWEP.LimitedStock           = true
+SWEP.LimitedStock           = false
 SWEP.AmmoEnt                = nil
 
 SWEP.InLoadoutFor           = {ROLE_CHEF}
@@ -169,6 +176,15 @@ function SWEP:SecondaryAttack()
     if self.SelectedFoodType > CHEF_FOOD_TYPE_FISH then
         self.SelectedFoodType = CHEF_FOOD_TYPE_NONE
     end
+
+    if CLIENT then return end
+
+    local owner = self:GetOwner()
+    if not IsPlayer(owner) then return end
+
+    net.Start("TTTChefFoodChanged")
+        net.WriteUInt(self.SelectedFoodType, 3)
+    net.Send(owner)
 end
 
 function SWEP:ViewModelDrawn()

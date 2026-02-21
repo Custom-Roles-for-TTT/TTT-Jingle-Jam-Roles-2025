@@ -134,6 +134,7 @@ if SERVER then
         local stealTarget = activator.TTTSafekeeperPickTarget
         if self ~= stealTarget then
             if safekeeper_warn_pick_start:GetBool() then
+                placer:ClearQueuedMessage("sfkSafePickStart")
                 placer:QueueMessage(MSG_PRINTBOTH, "Your safe is being picked!", nil, "sfkSafePickStart")
                 net.Start("TTT_SafekeeperPlaySound")
                     net.WriteString("pick")
