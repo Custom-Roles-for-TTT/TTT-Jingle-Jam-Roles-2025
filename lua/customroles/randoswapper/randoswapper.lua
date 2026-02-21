@@ -181,7 +181,7 @@ AddHook("PlayerDeath", "Randoswapper_KillCheck_PlayerDeath", function(victim, in
         if max_swaps > 0 and swapCount > max_swaps then
             attacker:SetRole(ROLE_SWAPPER)
             -- Set the swapper's tracking value too
-            attacker:SetNWString("RandoswappedWith", victim:Nick())
+            attacker:SetNWString("SwappedWith", victim:Nick())
         else
             swapCount = swapCount + 1
             attacker:SetRole(ROLE_RANDOSWAPPER)
