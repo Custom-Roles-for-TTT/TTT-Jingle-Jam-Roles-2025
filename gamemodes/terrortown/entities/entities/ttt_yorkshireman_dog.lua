@@ -129,9 +129,11 @@ if SERVER then
         self:ClearEnemy()
 
         -- Respawn the dog in front of their controller
+        local controllerPos = controller:GetPos()
         local ang = controller:EyeAngles()
-        local pos = controller:GetPos() + ang:Forward() * 75
+        local pos = controllerPos + ang:Forward() * 75
         ang.x = 0
+        pos.z = controllerPos.z
         local dog = ents.Create("ttt_yorkshireman_dog")
         dog:SetController(controller)
         dog:SetPos(pos + Vector(0, 0, 5))
