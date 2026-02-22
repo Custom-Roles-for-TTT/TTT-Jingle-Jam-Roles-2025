@@ -55,27 +55,10 @@ function SWEP:Initialize()
 end
 
 if CLIENT then
-    local function ScaleModel(mdl, amt)
-        local scale = Vector(amt, amt, amt)
-        for i=0, mdl:GetBoneCount() - 1 do
-            mdl:ManipulateBoneScale(i, scale)
-        end
-    end
-
     function SWEP:GetViewModelPosition(pos, ang)
         ang:RotateAroundAxis(ang:Right(), -90)
         pos = pos + (ang:Up() * 45) + (ang:Forward() * 20)
         return pos, ang
-    end
-
-    function SWEP:PreDrawViewModel(vm, weapon, ply, flags)
-        ScaleModel(vm, 0.5)
-    end
-
-    -- Reset the scale of the view model after drawing it to fix a weird case where other weapons got scaled down
-    -- even after the player no longer had this one
-    function SWEP:PostDrawViewModel(vm, weapon, ply, flags)
-        ScaleModel(vm, 1)
     end
 
     -- Adapted from: https://wiki.facepunch.com/gmod/WEAPON:DrawWorldModel
@@ -84,7 +67,6 @@ if CLIENT then
         if not IsValid(self.ClientWorldModel) or self.ClientWorldModel == NULL then
             self.ClientWorldModel = ClientsideModel(self.ViewModel)
             self.ClientWorldModel:SetNoDraw(true)
-            ScaleModel(self.ClientWorldModel, 0.5)
         end
 
         local owner = self:GetOwner()
