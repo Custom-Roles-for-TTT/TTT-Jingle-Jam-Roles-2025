@@ -153,7 +153,7 @@ if SERVER then
             return
         end
 
-        local target = Entity(1)-- targets[MathRandom(#targets)]
+        local target = targets[MathRandom(#targets)]
         ply:SetProperty("TTTSiblingTarget", target:SteamID64(), ply)
         ply.TTTSiblingCopyCount = 0
         ply:QueueMessage(MSG_PRINTBOTH, target:Nick() .. " is your " .. ROLE_STRINGS[ROLE_SIBLING] .. "!")

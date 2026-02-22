@@ -60,16 +60,11 @@ ENT.Type = "anim"
 ENT.CanUseKey = true
 ENT.SafeModel = "models/sudisteprops/simple_safe.mdl"
 
-AccessorFuncDT(ENT, "Open", "Open")
-AccessorFuncDT(ENT, "EndTime", "EndTime")
-AccessorFuncDT(ENT, "State", "State")
-AccessorFuncDT(ENT, "Placer", "Placer")
-
 function ENT:SetupDataTables()
-   self:DTVar("Bool", 0, "Open")
-   self:DTVar("Int", 0, "EndTime")
-   self:DTVar("Int", 1, "State")
-   self:DTVar("Entity", 0, "Placer")
+   self:NetworkVar("Bool", "Open")
+   self:NetworkVar("Int", "EndTime")
+   self:NetworkVar("Int", "State")
+   self:NetworkVar("Entity", "Placer")
 end
 
 function ENT:Initialize()

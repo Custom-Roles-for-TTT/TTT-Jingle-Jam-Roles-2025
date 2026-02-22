@@ -8,6 +8,7 @@ local MathRand = math.Rand
 local MathRandom = math.random
 
 if CLIENT then
+    ENT.PrintName = "ysm_dog_name"
     ENT.TargetIDHint = function(dog)
         local client = LocalPlayer()
         if not IsPlayer(client) then return end
@@ -38,12 +39,9 @@ if SERVER then
     CreateConVar("ttt_yorkshireman_dog_damage", "20", FCVAR_NONE, "How much damage the Yorkshireman's Guard Dog should do", 1, 200)
 end
 
-AccessorFuncDT(ENT, "Damage", "Damage")
-AccessorFuncDT(ENT, "Controller", "Controller")
-
 function ENT:SetupDataTables()
-   self:DTVar("Int", 0, "Damage")
-   self:DTVar("Entity", 0, "Controller")
+   self:NetworkVar("Int", "Damage")
+   self:NetworkVar("Entity", "Controller")
 end
 
 function ENT:Initialize()
@@ -105,12 +103,14 @@ if SERVER then
 
     ENT.Enemy = nil
 
+    ENT.MarkedStuck = false
+
     -------------
     -- UNSTUCK --
     -------------
 
     function ENT:IsStuck()
-        return self.loco:IsStuck()
+        return self.MarkedStuck or self.loco:IsStuck()
     end
 
     function ENT:Unstuck()
@@ -128,9 +128,11 @@ if SERVER then
         self:ClearEnemy()
 
         -- Respawn the dog in front of their controller
+        local controllerPos = controller:GetPos()
         local ang = controller:EyeAngles()
-        local pos = controller:GetPos() + ang:Forward() * 75
+        local pos = controllerPos + ang:Forward() * 75
         ang.x = 0
+        pos.z = controllerPos.z
         local dog = ents.Create("ttt_yorkshireman_dog")
         dog:SetController(controller)
         dog:SetPos(pos + Vector(0, 0, 5))
@@ -186,9 +188,11 @@ if SERVER then
 
             if self:IsStuck() then
                 self:Unstuck()
+                self.MarkedStuck = true
                 if self:IsStuck() then return end
             end
             self.StuckIterations = 0
+            self.MarkedStuck = false
 
             coroutine.yield()
         end
@@ -241,26 +245,37 @@ if SERVER then
 
                     -- Start trying to follow the controller
                     local path = Path("Follow")
-                    path:SetMinLookAheadDistance(50)
-                    path:SetGoalTolerance(20)
+                    path:SetMinLookAheadDistance(100)
+                    path:SetGoalTolerance(0)
                     path:Compute(self, controllerPos)
                     if not path:IsValid() then
+                        self.MarkedStuck = true
+                        coroutine.yield()
                         continue
                     end
+                    self.MarkedStuck = false
 
                     while path:IsValid() and controllerDistSqr > self.FollowDist do
                         -- Update the path to the controller as they move
                         if path:GetAge() > 0.1 then
                             path:Compute(self, controller:GetPos())
+                            if not path:IsValid() then
+                                self.MarkedStuck = true
+                                break
+                            end
                         end
                         path:Update(self)
 
                         if self:IsStuck() then
                             self:Unstuck()
-                            if self:IsStuck() then break end
+                            if self:IsStuck() then
+                                self.MarkedStuck = true
+                                break
+                            end
                             continue
                         end
                         self.StuckIterations = 0
+                        self.MarkedStuck = false
 
                         if self:HasEnemy() then
                             self:TrackEnemy()

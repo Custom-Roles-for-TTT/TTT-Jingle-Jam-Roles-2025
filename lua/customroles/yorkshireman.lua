@@ -133,7 +133,7 @@ if SERVER then
     end
 
     ROLE.selectionpredicate = function()
-        return file.Exists("models/tea/teacup.mdl", "GAME")
+        return navmesh.IsLoaded() and navmesh.GetNavAreaCount() > 0 and file.Exists("models/tea/teacup.mdl", "GAME")
     end
 
     ROLE.onroleassigned = function(ply)
@@ -224,7 +224,7 @@ if SERVER then
         for _, v in PlayerIterator() do
             SafeRemoveEntity(v.TTTYorkshiremanDog)
             v.TTTYorkshiremanDog = nil
-            v:ClearProperty("TTTYorkshiremanCollected", v)
+            v:ClearProperty("TTTYorkshiremanCollected")
             v:ClearProperty("TTTYorkshiremanCooldownEnd", v)
         end
     end)

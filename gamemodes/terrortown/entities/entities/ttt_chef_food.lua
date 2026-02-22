@@ -25,14 +25,10 @@ local food_model =
     [CHEF_FOOD_TYPE_FISH] = "models/props/de_inferno/goldfish.mdl"
 }
 
-AccessorFuncDT(ENT, "FoodType", "FoodType")
-AccessorFuncDT(ENT, "Burnt", "Burnt")
-AccessorFuncDT(ENT, "Chef", "Chef")
-
 function ENT:SetupDataTables()
-   self:DTVar("Int", 0, "FoodType")
-   self:DTVar("Bool", 0, "Burnt")
-   self:DTVar("Entity", 0, "Chef")
+   self:NetworkVar("Int", "FoodType")
+   self:NetworkVar("Bool", "Burnt")
+   self:NetworkVar("Entity", "Chef")
 end
 
 function ENT:Initialize()

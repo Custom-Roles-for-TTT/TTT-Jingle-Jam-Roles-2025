@@ -280,7 +280,7 @@ if SERVER then
         end
         self:SetProperty("TTTThiefStealState", THIEF_STEAL_STATE_COOLDOWN, self)
         self:SetProperty("TTTThiefStealStartTime", curTime, self)
-        self:SetProperty("TTTThiefStolen", (self.TTTThiefStolen or 0) + 1, self)
+        self:SetProperty("TTTThiefStolen", (self.TTTThiefStolen or 0) + 1)
 
         net.Start("TTT_ThiefItemStolen")
             net.WritePlayer(self)
@@ -581,7 +581,7 @@ if SERVER then
         for _, v in PlayerIterator() do
             v.TTTThiefStolenWeapon = nil
             v.TTTThiefDisabled = false
-            v:ClearProperty("TTTThiefStolen", v)
+            v:ClearProperty("TTTThiefStolen")
             v:ClearProperty("TTTThiefStealTarget", v)
             v:ClearProperty("TTTThiefStealStartTime", v)
             v:ClearProperty("TTTThiefStealLostTime", v)

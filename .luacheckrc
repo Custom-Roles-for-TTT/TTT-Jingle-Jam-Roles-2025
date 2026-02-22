@@ -785,6 +785,7 @@ globals = {
     "input",
     "list",
     "math",
+    "navmesh",
     "net",
     "os",
     "permissions",
