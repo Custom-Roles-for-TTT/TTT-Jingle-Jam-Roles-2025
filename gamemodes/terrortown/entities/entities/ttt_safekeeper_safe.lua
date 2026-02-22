@@ -60,10 +60,6 @@ ENT.Type = "anim"
 ENT.CanUseKey = true
 ENT.SafeModel = "models/sudisteprops/simple_safe.mdl"
 
--- Slightly oversized so it handles angles as well
-ENT.CollisionMins = Vector(-20.5, -19.2, -2.5)
-ENT.CollisionMaxs = Vector(19, 20.5, 28.7)
-
 AccessorFuncDT(ENT, "Open", "Open")
 AccessorFuncDT(ENT, "EndTime", "EndTime")
 AccessorFuncDT(ENT, "State", "State")
@@ -84,14 +80,7 @@ function ENT:Initialize()
         self:PhysicsInit(SOLID_VPHYSICS)
     end
     self:SetMoveType(MOVETYPE_VPHYSICS)
-    self:SetSolid(SOLID_BBOX)
-
-    local scale = Vector(0.5, 0.5, 0.5)
-    for i=0, self:GetBoneCount() - 1 do
-        self:ManipulateBoneScale(i, scale)
-    end
-
-    self:SetCollisionBounds(self.CollisionMins, self.CollisionMaxs)
+    self:SetSolid(SOLID_VPHYSICS)
     self:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE)
 
     if SERVER then
