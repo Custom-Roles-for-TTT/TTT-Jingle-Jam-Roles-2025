@@ -93,8 +93,13 @@ if CLIENT then
             self.ClientWorldModel:SetAngles(self:GetAngles())
         end
 
-        self.ClientWorldModel:DrawModel()
+        self.ClientWorldModel:DrawModel(flags)
+        -- Since we're using a fake model, even if it's not actually rendered it causes shadows
+        -- so.... just disable shadows entirely
+        self:DrawShadow(false)
     end
+
+    function SWEP:DrawWorldModelTranslucent() end
 
     function SWEP:OnRemove()
         SafeRemoveEntity(self.ClientWorldModel)
