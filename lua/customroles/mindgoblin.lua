@@ -116,7 +116,8 @@ ROLE.translations = {
         ["mindgoblin_possess_damage"] = "Damage Boost",
         ["mindgoblin_possess_damage_desc"] = "Press right to boost {target}'s damage",
         ["mindgoblin_possess_resist"] = "Damage Resist",
-        ["mindgoblin_possess_resist_desc"] = "Press left to boost {target}'s damage resist"
+        ["mindgoblin_possess_resist_desc"] = "Press left to boost {target}'s damage resist",
+        ["score_mindgoblin_possessed"] = "Possessed"
     }
 }
 
@@ -180,9 +181,46 @@ if SERVER then
     -- ROLE FEATURES --
     -------------------
 
+    local function ResetState(ply)
+        ply:ClearProperty("TTTMindGoblinPossessingTarget")
+        ply:ClearProperty("TTTMindGoblinPossessing", ply)
+        ply:ClearProperty("TTTMindGoblinPossessingPower", ply)
+        timer.Remove("MindGoblinPossessingPower_" .. ply:SteamID64())
+        timer.Remove("MindGoblinPossessingSpectate_" .. ply:SteamID64())
+    end
+
     AddHook("PlayerDeath", "MindGoblin_PlayerDeath", function(victim, inflictor, attacker)
         if not IsPlayer(victim) then return end
-        if not victim:IsMindGoblin() then return end
+        if not victim:IsMindGoblin() then
+            -- If this player is the target of a mind goblin, clear all that
+            local victimSid64 = victim:SteamID64()
+            for _, p in PlayerIterator() do
+                if p == victim then continue end
+                if not p:IsMindGoblin() then continue end
+
+                local targetSid64 = p.TTTMindGoblinPossessingTarget
+                if targetSid64 ~= victimSid64 then continue end
+
+                -- Clear tracking
+                ResetState(p)
+
+                -- Stop all the buffs too
+                local plySid64 = p:SteamID64()
+                timer.Remove("MindGoblinHealBuff_" .. plySid64 .. "_" .. targetSid64)
+                timer.Remove("MindGoblinHealBuff_" .. plySid64 .. "_" .. targetSid64 .. "_Smoke")
+                timer.Remove("MindGoblinSpeedBuff_" .. plySid64 .. "_" .. targetSid64)
+                timer.Remove("MindGoblinDamageBuff_" .. plySid64 .. "_" .. targetSid64)
+                timer.Remove("MindGoblinResistBuff_" .. plySid64 .. "_" .. targetSid64)
+                net.Start("TTT_MindGoblinSpeedEnd")
+                    net.WriteString(targetSid64)
+                net.Send(victim)
+                net.Start("TTT_MindGoblinHealEnd")
+                    net.WriteString(targetSid64)
+                net.Broadcast()
+                p:QueueMessage(MSG_PRINTBOTH, "Your possession target has been killed, setting you free...")
+            end
+            return
+        end
         if victim:IsRoleAbilityDisabled() then return end
 
         if mindgoblin_dissolve:GetBool() then
@@ -203,6 +241,7 @@ if SERVER then
         end
 
         victim:SetProperty("TTTMindGoblinPossessing", true, victim)
+        victim:SetProperty("TTTMindGoblinPossessedName", attacker:Nick())
         victim:SetProperty("TTTMindGoblinPossessingTarget", attacker:SteamID64())
         victim:SetProperty("TTTMindGoblinPossessingPower", mindgoblin_possess_power_starting:GetInt(), victim)
         local power_rate = mindgoblin_possess_power_rate:GetInt()
@@ -360,7 +399,7 @@ if SERVER then
         if not spent then return end
 
         ply:QueueMessage(MSG_PRINTBOTH, "You have " .. verb .. " " .. goblinSubject)
-        target:QueueMessage(MSG_PRINTBOTH, ROLE_STRINGS_EXT[ROLE_MINDGOBLIN] .. " has " .. verb .. " " .. targetSubject .. "!")
+        target:QueueMessage(MSG_PRINTBOTH, string.Capitalize(ROLE_STRINGS_EXT[ROLE_MINDGOBLIN]) .. " has " .. verb .. " " .. targetSubject .. "!")
         ply:SetProperty("TTTMindGoblinPossessingPower", power - spent, ply)
     end)
 
@@ -398,11 +437,8 @@ if SERVER then
 
     AddHook("TTTPrepareRound", "MindGoblin_TTTPrepareRound", function()
         for _, v in PlayerIterator() do
-            v:ClearProperty("TTTMindGoblinPossessingTarget")
-            v:ClearProperty("TTTMindGoblinPossessing", v)
-            v:ClearProperty("TTTMindGoblinPossessingPower", v)
-            timer.Remove("MindGoblinPossessingPower_" .. v:SteamID64())
-            timer.Remove("MindGoblinPossessingSpectate_" .. v:SteamID64())
+            v:ClearProperty("TTTMindGoblinPossessedName")
+            ResetState(v)
         end
 
         for timerId, _ in pairs(timerIds) do
@@ -558,11 +594,27 @@ if CLIENT then
     end)
 
     -------------
+    -- SCORING --
+    -------------
+
+    AddHook("TTTScoringSummaryRender", "MindGoblin_TTTScoringSummaryRender", function(ply, roleFileName, groupingRole, roleColor, name, startingRole, finalRole)
+        if not IsPlayer(ply) then return end
+
+        if ply:IsMindGoblin() then
+            local possessedName = ply.TTTMindGoblinPossessedName
+            if possessedName and #possessedName > 0 then
+                return roleFileName, groupingRole, roleColor, name, possessedName, LANG.GetTranslation("score_mindgoblin_possessed")
+            end
+        end
+    end)
+
+    -------------
     -- CLEANUP --
     -------------
 
     AddHook("TTTPrepareRound", "MindGoblin_TTTPrepareRound", function()
         speedPlayers = {}
+        healPlayers = {}
     end)
 
     --------------

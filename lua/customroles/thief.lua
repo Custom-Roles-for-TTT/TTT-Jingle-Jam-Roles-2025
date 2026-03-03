@@ -123,8 +123,7 @@ THIEF_STEAL_STATE_IDLE = 0
 THIEF_STEAL_STATE_STEALING = 1
 THIEF_STEAL_STATE_LOSING = 2
 THIEF_STEAL_STATE_LOST = 3
-THIEF_STEAL_STATE_STOLEN = 4
-THIEF_STEAL_STATE_COOLDOWN = 5
+THIEF_STEAL_STATE_COOLDOWN = 4
 
 ------------------
 -- ROLE CONVARS --
@@ -280,7 +279,7 @@ if SERVER then
         end
         self:SetProperty("TTTThiefStealState", THIEF_STEAL_STATE_COOLDOWN, self)
         self:SetProperty("TTTThiefStealStartTime", curTime, self)
-        self:SetProperty("TTTThiefStolen", (self.TTTThiefStolen or 0) + 1, self)
+        self:SetProperty("TTTThiefStolen", (self.TTTThiefStolen or 0) + 1)
 
         net.Start("TTT_ThiefItemStolen")
             net.WritePlayer(self)
@@ -581,7 +580,7 @@ if SERVER then
         for _, v in PlayerIterator() do
             v.TTTThiefStolenWeapon = nil
             v.TTTThiefDisabled = false
-            v:ClearProperty("TTTThiefStolen", v)
+            v:ClearProperty("TTTThiefStolen")
             v:ClearProperty("TTTThiefStealTarget", v)
             v:ClearProperty("TTTThiefStealStartTime", v)
             v:ClearProperty("TTTThiefStealLostTime", v)
@@ -797,7 +796,7 @@ if CLIENT then
 
     AddHook("TTTSyncEventIDs", "Thief_TTTSyncEventIDs", function()
         EVENT_THIEFSTOLEN = EVENTS_BY_ROLE[ROLE_THIEF]
-        local swap_icon = Material("icon16/money.png")
+        local steal_icon = Material("icon16/money.png")
         local Event = CLSCORE.DeclareEventDisplay
         local PT = LANG.GetParamTranslation
         Event(EVENT_THIEFSTOLEN, {
@@ -805,7 +804,7 @@ if CLIENT then
                 return PT("ev_thiefstolen", {thief = e.thf, victim = e.vic, item = e.item})
             end,
             icon = function(e)
-                return swap_icon, "Item stolen"
+                return steal_icon, "Item stolen"
             end})
     end)
 

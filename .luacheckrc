@@ -785,6 +785,7 @@ globals = {
     "input",
     "list",
     "math",
+    "navmesh",
     "net",
     "os",
     "permissions",
@@ -1320,7 +1321,6 @@ globals = {
     "THIEF_STEAL_STATE_LOSING",
     "THIEF_STEAL_STATE_LOST",
     "THIEF_STEAL_STATE_STEALING",
-    "THIEF_STEAL_STATE_STOLEN",
     "WIN_PINATA",
     "WIN_THIEF"
 }

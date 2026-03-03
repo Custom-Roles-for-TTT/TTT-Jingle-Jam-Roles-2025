@@ -93,15 +93,15 @@ end
 -- ROLE CONVARS --
 ------------------
 
-local sibling_share_mode = CreateConVar("ttt_sibling_share_mode", "3", FCVAR_REPLICATED, "How to handle the sibling's \"share\" logic. 1 - Copy the purchased item. 2 - Chance to steal. 3 - Copy the purchased item with a chance to steal", 1, 3)
-local sibling_copy_count = CreateConVar("ttt_sibling_copy_count", "1", FCVAR_REPLICATED, "How many times the sibling should copy their target's shop purchases. Set to \"0\" to copy all purchases. Only used when \"ttt_sibling_share_mode\" is set to a mode that copies", 0, 25)
-local sibling_steal_chance = CreateConVar("ttt_sibling_steal_chance", "0.5", FCVAR_REPLICATED, "The chance that a sibling will steal their target's shop purchase instead of copying (e.g. 0.5 = 50% chance to steal). Only used when \"ttt_sibling_share_mode\" is set to a mode that steals", 0, 1)
-local sibling_target_innocents = CreateConVar("ttt_sibling_target_innocents", "1", FCVAR_REPLICATED, "Whether the sibling's target can be an innocent role (not including detectives)", 0, 1)
-local sibling_target_detectives = CreateConVar("ttt_sibling_target_detectives", "1", FCVAR_REPLICATED, "Whether the sibling's target can be a detective role", 0, 1)
-local sibling_target_traitors = CreateConVar("ttt_sibling_target_traitors", "1", FCVAR_REPLICATED, "Whether the sibling's target can be a traitor role", 0, 1)
-local sibling_target_independents = CreateConVar("ttt_sibling_target_independents", "1", FCVAR_REPLICATED, "Whether the sibling's target can be an independent role", 0, 1)
-local sibling_target_jesters = CreateConVar("ttt_sibling_target_jesters", "1", FCVAR_REPLICATED, "Whether the sibling's target can be a jester role", 0, 1)
-local sibling_target_monsters = CreateConVar("ttt_sibling_target_monsters", "1", FCVAR_REPLICATED, "Whether the sibling's target can be a monster role", 0, 1)
+local sibling_share_mode = CreateConVar("ttt_sibling_share_mode", "3", FCVAR_REPLICATED, "How to handle the Sibling's \"share\" logic. 1 - Copy the purchased item. 2 - Chance to steal. 3 - Copy the purchased item with a chance to steal", 1, 3)
+local sibling_copy_count = CreateConVar("ttt_sibling_copy_count", "1", FCVAR_REPLICATED, "How many times the Sibling should copy their target's shop purchases. Set to \"0\" to copy all purchases. Only used when \"ttt_sibling_share_mode\" is set to a mode that copies", 0, 25)
+local sibling_steal_chance = CreateConVar("ttt_sibling_steal_chance", "0.5", FCVAR_REPLICATED, "The chance that a Sibling will steal their target's shop purchase instead of copying (e.g. 0.5 = 50% chance to steal). Only used when \"ttt_sibling_share_mode\" is set to a mode that steals", 0, 1)
+local sibling_target_innocents = CreateConVar("ttt_sibling_target_innocents", "1", FCVAR_REPLICATED, "Whether the Sibling's target can be an innocent role (not including detectives)", 0, 1)
+local sibling_target_detectives = CreateConVar("ttt_sibling_target_detectives", "1", FCVAR_REPLICATED, "Whether the Sibling's target can be a detective role", 0, 1)
+local sibling_target_traitors = CreateConVar("ttt_sibling_target_traitors", "1", FCVAR_REPLICATED, "Whether the Sibling's target can be a traitor role", 0, 1)
+local sibling_target_independents = CreateConVar("ttt_sibling_target_independents", "1", FCVAR_REPLICATED, "Whether the Sibling's target can be an independent role", 0, 1)
+local sibling_target_jesters = CreateConVar("ttt_sibling_target_jesters", "1", FCVAR_REPLICATED, "Whether the Sibling's target can be a jester role", 0, 1)
+local sibling_target_monsters = CreateConVar("ttt_sibling_target_monsters", "1", FCVAR_REPLICATED, "Whether the Sibling's target can be a monster role", 0, 1)
 
 if SERVER then
     AddCSLuaFile()
@@ -153,7 +153,7 @@ if SERVER then
             return
         end
 
-        local target = Entity(1)-- targets[MathRandom(#targets)]
+        local target = targets[MathRandom(#targets)]
         ply:SetProperty("TTTSiblingTarget", target:SteamID64(), ply)
         ply.TTTSiblingCopyCount = 0
         ply:QueueMessage(MSG_PRINTBOTH, target:Nick() .. " is your " .. ROLE_STRINGS[ROLE_SIBLING] .. "!")

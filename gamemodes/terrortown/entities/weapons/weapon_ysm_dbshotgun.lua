@@ -47,7 +47,7 @@ SWEP.WorldModel = "models/weapons/w_old_doublebarrel.mdl"
 local yorkshireman_shotgun_damage = CreateConVar("ttt_yorkshireman_shotgun_damage", "10", FCVAR_REPLICATED, "How much damage the Yorkshireman's double barrel shotgun should do", 0, 100)
 
 function SWEP:SetupDataTables()
-    self:NetworkVar("Bool", 0, "Reloading")
+    self:NetworkVar("Bool", "Reloading")
 end
 
 function SWEP:Initialize()

@@ -86,20 +86,13 @@ local overcook_time = CreateConVar("ttt_chef_overcook_time", "5", FCVAR_REPLICAT
 local overcook_fire_time = CreateConVar("ttt_chef_overcook_fire_time", "30", FCVAR_REPLICATED, "How long (in seconds) after food is burnt before it the stove catches fire. Set to \"0\" to disable", 0, 60)
 local overcook_fire_lifetime = CreateConVar("ttt_chef_overcook_fire_lifetime", "20", FCVAR_REPLICATED, "How long (in seconds) the stove stays on fire once it ignites. Only used when \"ttt_chef_overcook_fire_time\" is greater than 0", 1, 60)
 
-AccessorFuncDT(ENT, "FoodType", "FoodType")
-AccessorFuncDT(ENT, "EndTime", "EndTime")
-AccessorFuncDT(ENT, "OvercookTime", "OvercookTime")
-AccessorFuncDT(ENT, "State", "State")
-AccessorFuncDT(ENT, "Placer", "Placer")
-AccessorFuncDT(ENT, "OnFire", "OnFire")
-
 function ENT:SetupDataTables()
-   self:DTVar("Int", 0, "FoodType")
-   self:DTVar("Int", 1, "EndTime")
-   self:DTVar("Int", 2, "OvercookTime")
-   self:DTVar("Int", 3, "State")
-   self:DTVar("Entity", 0, "Placer")
-   self:DTVar("Bool", 0, "OnFire")
+   self:NetworkVar("Int", "FoodType")
+   self:NetworkVar("Int", "EndTime")
+   self:NetworkVar("Int", "OvercookTime")
+   self:NetworkVar("Int", "State")
+   self:NetworkVar("Entity", "Placer")
+   self:NetworkVar("Bool", "OnFire")
 end
 
 function ENT:Initialize()
@@ -109,7 +102,7 @@ function ENT:Initialize()
         self:PhysicsInit(SOLID_VPHYSICS)
     end
     self:SetMoveType(MOVETYPE_VPHYSICS)
-    self:SetSolid(SOLID_BBOX)
+    self:SetSolid(SOLID_VPHYSICS)
     self:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE)
 
     if SERVER then

@@ -164,6 +164,7 @@ function SWEP:PrimaryAttack()
     stove:SetMaxHealth(health)
 
     stove:Spawn()
+    stove:Activate()
 
     self:Remove()
 end
