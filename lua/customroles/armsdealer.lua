@@ -37,6 +37,10 @@ ROLE.team = ROLE_TEAM_INDEPENDENT
 ROLE.convars =
 {
     {
+        cvar = "ttt_armsdealer_target_reveal",
+        type = ROLE_CONVAR_TYPE_BOOL
+    },
+    {
         cvar = "ttt_armsdealer_target_innocents",
         type = ROLE_CONVAR_TYPE_BOOL
     },
@@ -142,10 +146,12 @@ ROLE.convars =
 ROLE.translations = {
     ["english"] = {
         ["adldeal_dealing"] = "DEALING TO {target}",
+        ["adldeal_dealing_unknown"] = "DEALING",
         ["adldeal_failed"] = "DEALING FAILED",
         ["armsdealer_collect_hud"] = "Dealt Weapons: {dealt}/{total}",
         ["armsdealer_cooldown_hud"] = "Deal Cooldown: {time}",
         ["armsdealer_deal_notify"] = "You dealt \"{item}\" to {target}!",
+        ["armsdealer_deal_notify_unknown"] = "You dealt \"{item}\" to someone!",
         ["ev_armsdealerdealt"] = "{armsdealer} dealt \"{item}\" to {target}",
         ["score_adl_dealt"] = "Dealt",
         ["score_adl_weapons"] = "{count} Weapon(s)",
@@ -169,6 +175,7 @@ local armsdealer_deal_notify_delay_min = CreateConVar("ttt_armsdealer_deal_notif
 local armsdealer_deal_notify_delay_max = CreateConVar("ttt_armsdealer_deal_notify_delay_max", "30", FCVAR_REPLICATED, "The maximum delay before a player is notified a weapon has been dealt to them. Set this and \"ttt_armsdealer_deal_notify_delay_min\" to \"0\" to notify instantly", 0, 60)
 local armsdealer_deal_time = CreateConVar("ttt_armsdealer_deal_time", "15", FCVAR_REPLICATED, "How long (in seconds) it takes the Arms Dealer to deal a weapon to a target", 1, 60)
 local armsdealer_deal_to_win = CreateConVar("ttt_armsdealer_deal_to_win", "15", FCVAR_REPLICATED, "How many weapons the Arms Dealer has to deal to get a secondary win", 1, 25)
+local armsdealer_target_reveal = CreateConVar("ttt_armsdealer_target_reveal", "1", FCVAR_REPLICATED, "Whether targets that are successfully dealt to have their name and team affiliation revealed to the Arms Dealer", 0, 1)
 local armsdealer_target_innocents = CreateConVar("ttt_armsdealer_target_innocents", "0", FCVAR_REPLICATED, "Whether the Arms Dealer's target can be an innocent role (not including detectives)", 0, 1)
 local armsdealer_target_innocents_blocklist = CreateConVar("ttt_armsdealer_target_innocents_blocklist", "", FCVAR_REPLICATED, "The comma-delimited list of raw innocent (not including detectives) role names that should not be targeted by the Arms Dealer")
 local armsdealer_target_detectives = CreateConVar("ttt_armsdealer_target_detectives", "1", FCVAR_REPLICATED, "Whether the Arms Dealer's target can be a detective role", 0, 1)
@@ -181,6 +188,7 @@ local armsdealer_target_jesters = CreateConVar("ttt_armsdealer_target_jesters", 
 local armsdealer_target_jesters_blocklist = CreateConVar("ttt_armsdealer_target_jesters_blocklist", "clown", FCVAR_REPLICATED, "The comma-delimited list of raw jester role names that should not be targeted by the Arms Dealer")
 local armsdealer_target_monsters = CreateConVar("ttt_armsdealer_target_monsters", "1", FCVAR_REPLICATED, "Whether the Arms Dealer's target can be a monster role", 0, 1)
 local armsdealer_target_monsters_blocklist = CreateConVar("ttt_armsdealer_target_monsters_blocklist", "", FCVAR_REPLICATED, "The comma-delimited list of raw monster role names that should not be targeted by the Arms Dealer")
+
 local blocklistInnocent = {}
 local blocklistDetective = {}
 local blocklistTraitor = {}
@@ -434,7 +442,13 @@ if SERVER then
                         ply:SetProperty("TTTArmsDealerDealStartTime", curTime + deal_failure_cooldown, ply)
                     end
                     ply:ClearQueuedMessage("adlDealFailed")
-                    ply:QueueMessage(MSG_PRINTCENTER, target:Nick() .. " has no room for your weapons, try someone else!", nil, "adlDealFailed")
+                    local targetName
+                    if armsdealer_target_reveal:GetBool() then
+                        targetName = target:Nick()
+                    else
+                        targetName = "Your target"
+                    end
+                    ply:QueueMessage(MSG_PRINTCENTER, targetName .. " has no room for your weapons, try someone else!", nil, "adlDealFailed")
                     return
                 end
 
@@ -466,7 +480,7 @@ if SERVER then
                 local function DoNotify()
                     if not IsPlayer(target) then return end
                     if not target:Alive() or target:IsSpec() then return end
-                    target:QueueMessage(MSG_PRINTBOTH, "The " .. ROLE_STRINGS[ROLE_ARMSDEALER] .. " as dealt you a weapon!")
+                    target:QueueMessage(MSG_PRINTBOTH, "The " .. ROLE_STRINGS[ROLE_ARMSDEALER] .. " has dealt you a weapon!")
                 end
 
                 -- Notify instantly
@@ -703,7 +717,12 @@ if CLIENT then
         elseif state >= ARMSDEALER_DEAL_STATE_DEALING then
             if endTime < 0 then return end
 
-            local text = PT("adldeal_dealing", {target = target:Nick()})
+            local text
+            if armsdealer_target_reveal:GetBool() then
+                text = PT("adldeal_dealing", {target = target:Nick()})
+            else
+                text = T("adldeal_dealing_unknown")
+            end
             local color = Color(0, 255, 0, 155)
             if state == ARMSDEALER_DEAL_STATE_LOSING then
                 color = Color(255, 255, 0, 155)
@@ -825,8 +844,10 @@ if CLIENT then
         if not IsPlayer(target) then return end
         if not IsPlayer(armsdealer) then return end
 
-        -- Mark the target as known to the Arms Dealer and reveal any previously-unknown team affiliation
-        target.TTTArmsDealerRevealed = true
+        if armsdealer_target_reveal:GetBool() then
+            -- Mark the target as known to the Arms Dealer and reveal any previously-unknown team affiliation
+            target.TTTArmsDealerRevealed = true
+        end
 
         -- If this client is the armsdealer that did the dealing, use this
         -- method to also notify them of what they dealt
@@ -834,7 +855,12 @@ if CLIENT then
             client = LocalPlayer()
         end
         if client == armsdealer then
-            local message = LANG.GetParamTranslation("armsdealer_deal_notify", {item = item, target = target:Nick()})
+            local message
+            if armsdealer_target_reveal:GetBool() then
+                message = LANG.GetParamTranslation("armsdealer_deal_notify", {item = item, target = target:Nick()})
+            else
+                message = LANG.GetTranslation("armsdealer_deal_notify_unknown")
+            end
             client:ClearQueuedMessage("adlDealFailed")
             client:QueueMessage(MSG_PRINTBOTH, message)
         end
@@ -955,11 +981,17 @@ if CLIENT then
             end
 
             if delay_min >= 0 then
-                local time = "after a short delay"
+                local time
                 if delay_min == 0 then
                     time = "immediately"
+                else
+                    time = "after a short delay"
                 end
                 html = html .. "<span style='display: block; margin-top: 10px;'>Be careful though! Players <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>are notified when they are given a weapon</span> " .. time .. ". Be sure to be sneaky or blend in with other players to disguise that you are the " .. ROLE_STRINGS[ROLE_ARMSDEALER] .. ".</span>"
+            end
+
+            if armsdealer_target_reveal:GetBool() then
+                html = html .. "<span style='display: block; margin-top: 10px;'>After the " .. ROLE_STRINGS[ROLE_ARMSDEALER] .. " deals a weapon to a player, <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>the target's team is revealed</span> to the " .. ROLE_STRINGS[ROLE_ARMSDEALER] .. ".</span>"
             end
 
             -- Cooldown
