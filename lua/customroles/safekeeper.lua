@@ -127,6 +127,12 @@ if SERVER then
     -- PICK TRACKING --
     --------------------
 
+    local function ResetPickState(ply)
+        ply.TTTSafekeeperLastPickTime = nil
+        ply:ClearProperty("TTTSafekeeperPickTarget", ply)
+        ply:ClearProperty("TTTSafekeeperPickStart", ply)
+    end
+
     AddHook("TTTPlayerAliveThink", "Safekeeper_TTTPlayerAliveThink_Picking", function(ply)
         if ply.TTTSafekeeperLastPickTime == nil then return end
 
@@ -138,11 +144,9 @@ if SERVER then
 
         local curTime = CurTime()
 
-        -- If it's been too long since the user used the ankh, stop tracking their progress
+        -- If it's been too long since the user used the safe, stop tracking their progress
         if curTime - ply.TTTSafekeeperLastPickTime >= safekeeper_pick_grace_time:GetFloat() then
-            ply.TTTSafekeeperLastPickTime = nil
-            ply:ClearProperty("TTTSafekeeperPickTarget", ply)
-            ply:ClearProperty("TTTSafekeeperPickStart", ply)
+            ResetPickState(ply)
             return
         end
 
@@ -150,6 +154,13 @@ if SERVER then
         if curTime - pickStart < safekeeper_pick_time:GetInt() then return end
 
         pickTarget:Open(ply)
+    end)
+
+    AddHook("PostPlayerDeath", "Safekeeper_PostPlayerDeath", function(ply)
+        if not IsPlayer(ply) then return end
+
+        -- If a player died the can't be picking the safe anymore, so clear that state
+        ResetPickState(ply)
     end)
 
     -------------------
@@ -291,13 +302,11 @@ if SERVER then
 
     AddHook("TTTPrepareRound", "Safekeeper_TTTPrepareRound", function()
         for _, v in PlayerIterator() do
-            v.TTTSafekeeperLastPickTime = nil
             v:ClearProperty("TTTSafekeeperLootedList")
             v:ClearProperty("TTTSafekeeperSafe")
-            v:ClearProperty("TTTSafekeeperPickTarget", v)
-            v:ClearProperty("TTTSafekeeperPickStart", v)
             v:ClearProperty("TTTSafekeeperDropTime", v)
             v:ClearProperty("TTTSafekeeperWarmupTime", v)
+            ResetPickState(v)
         end
     end)
 

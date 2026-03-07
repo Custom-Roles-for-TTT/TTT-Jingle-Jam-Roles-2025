@@ -117,12 +117,23 @@ function ENT:Initialize()
     end
 end
 
+function ENT:OnRemove()
+    if SERVER then
+        self:RemoveFire()
+    else
+        self.SmokeEmitter:Finish()
+        self.SmokeEmitter = nil
+        self.SmokeNextPart = nil
+    end
+end
+
 function ENT:Think()
     local state = self:GetState()
     if state < CHEF_STOVE_STATE_COOKING then
         if CLIENT and self.SmokeEmitter then
             self.SmokeEmitter:Finish()
             self.SmokeEmitter = nil
+            self.SmokeNextPart = nil
         end
         return
     end

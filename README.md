@@ -25,7 +25,7 @@ ttt_armsdealer_deal_require_los              1   // Whether the Arms Dealer requ
 ttt_armsdealer_deal_success_cooldown         0   // How long (in seconds) after the Arms Dealer deals something before they can deal with anyone again
 ttt_armsdealer_deal_target_cooldown          30  // How long (in seconds) after the Arms Dealer deals something to a target before that target can be dealt to again
 ttt_armsdealer_deal_time                     15  // How long (in seconds) it takes the Arms Dealer to deal a weapon to a target
-ttt_armsdealer_deal_to_win                   15  // How many weapons the Arms Dealer has to deal to get a secondary win
+ttt_armsdealer_deal_to_win                   5   // How many weapons the Arms Dealer has to deal to get a secondary win
 ttt_armsdealer_target_reveal                 1   // Whether targets that are successfully dealt to have their name nad team affiliation revealed to the Arms Dealer
 ttt_armsdealer_target_detectives             1   // Whether the Arms Dealer's target can be a detective role
 ttt_armsdealer_target_detectives_blocklist   ""  // The comma-delimited list of raw detective role names that should not be targeted by the Arms Dealer
