@@ -1,6 +1,5 @@
 local ents = ents
 local math = math
-local player = player
 
 local EntsCreate = ents.Create
 local MathCeil = math.ceil
