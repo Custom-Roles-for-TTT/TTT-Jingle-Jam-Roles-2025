@@ -280,11 +280,11 @@ if SERVER then
         if not IsPlayer(ply) then return end
         if not ply:IsMindGoblin() then return end
 
-        local power = ply.TTTMindGoblinPossessingPower or 0
-        if power <= 0 then return end
-
         local target = ply:GetObserverMode() ~= OBS_MODE_ROAMING and ply:GetObserverTarget() or nil
         if not IsPlayer(target) then return end
+
+        local power = ply.TTTMindGoblinPossessingPower or 0
+        if power <= 0 then return true end
 
         local heal_cost = mindgoblin_possess_heal_cost:GetInt()
         local speed_cost = mindgoblin_possess_speed_cost:GetInt()
@@ -298,10 +298,14 @@ if SERVER then
         local goblinSubject = "your target, " .. target:Nick()
         local targetSubject = "you"
         if key == IN_BACK and power >= heal_cost then
-            if target:Health() >= target:GetMaxHealth() then return end
+            if target:Health() >= target:GetMaxHealth() then return true end
 
             local timerId = "MindGoblinHealBuff_" .. plySid64 .. "_" .. targetSid64
-            if timer.Exists(timerId) then return end
+            if timer.Exists(timerId) then
+                ply:ClearQueuedMessage("mgbEffectAlreadyActive")
+                ply:QueueMessage(MSG_PRINTBOTH, "You are already healing " .. target:Nick() .. ".", nil, "mgbEffectAlreadyActive")
+                return true
+            end
 
             net.Start("TTT_MindGoblinHealStart")
                 net.WriteString(targetSid64)
@@ -333,7 +337,11 @@ if SERVER then
             verb = "healed"
         elseif key == IN_FORWARD and power >= speed_cost then
             local timerId = "MindGoblinSpeedBuff_" .. plySid64 .. "_" .. targetSid64
-            if timer.Exists(timerId) then return end
+            if timer.Exists(timerId) then
+                ply:ClearQueuedMessage("mgbEffectAlreadyActive")
+                ply:QueueMessage(MSG_PRINTBOTH, "You are already hastening " .. target:Nick() .. ".", nil, "mgbEffectAlreadyActive")
+                return true
+            end
 
             if not speedPlayers[targetSid64] then
                 speedPlayers[targetSid64] = 0
@@ -358,7 +366,11 @@ if SERVER then
             verb = "hastened"
         elseif key == IN_MOVERIGHT and power >= damage_cost then
             local timerId = "MindGoblinDamageBuff_" .. plySid64 .. "_" .. targetSid64
-            if timer.Exists(timerId) then return end
+            if timer.Exists(timerId) then
+                ply:ClearQueuedMessage("mgbEffectAlreadyActive")
+                ply:QueueMessage(MSG_PRINTBOTH, "You are already buffing " .. target:Nick() .. "'s damage.", nil, "mgbEffectAlreadyActive")
+                return true
+            end
 
             if not damagePlayers[targetSid64] then
                 damagePlayers[targetSid64] = 0
@@ -377,7 +389,11 @@ if SERVER then
             targetSubject = targetSubject .. "r damage"
         elseif key == IN_MOVELEFT and power >= resist_cost then
             local timerId = "MindGoblinResistBuff_" .. plySid64 .. "_" .. targetSid64
-            if timer.Exists(timerId) then return end
+            if timer.Exists(timerId) then
+                ply:ClearQueuedMessage("mgbEffectAlreadyActive")
+                ply:QueueMessage(MSG_PRINTBOTH, "You are already buffing " .. target:Nick() .. "'s damage resistance.", nil, "mgbEffectAlreadyActive")
+                return true
+            end
 
             if not resistPlayers[targetSid64] then
                 resistPlayers[targetSid64] = 0
@@ -396,11 +412,14 @@ if SERVER then
             targetSubject = targetSubject .. "r damage resistance"
         end
 
-        if not spent then return end
+        if spent then
+            ply:QueueMessage(MSG_PRINTBOTH, "You have " .. verb .. " " .. goblinSubject)
+            target:QueueMessage(MSG_PRINTBOTH, string.Capitalize(ROLE_STRINGS_EXT[ROLE_MINDGOBLIN]) .. " has " .. verb .. " " .. targetSubject .. "!")
+            ply:SetProperty("TTTMindGoblinPossessingPower", power - spent, ply)
+        end
 
-        ply:QueueMessage(MSG_PRINTBOTH, "You have " .. verb .. " " .. goblinSubject)
-        target:QueueMessage(MSG_PRINTBOTH, string.Capitalize(ROLE_STRINGS_EXT[ROLE_MINDGOBLIN]) .. " has " .. verb .. " " .. targetSubject .. "!")
-        ply:SetProperty("TTTMindGoblinPossessingPower", power - spent, ply)
+        -- Prevent normal spectator buttons
+        return true
     end)
 
     AddHook("EntityTakeDamage", "MindGoblin_EntityTakeDamage", function(ply, dmginfo)
