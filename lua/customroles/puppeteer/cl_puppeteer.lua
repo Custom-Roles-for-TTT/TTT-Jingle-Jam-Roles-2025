@@ -15,6 +15,7 @@ local MathPi = math.pi
 local MathRand = math.Rand
 local MathSin = math.sin
 local PlayerIterator = player.Iterator
+local RenderView = render.RenderView
 local TableHasValue = table.HasValue
 local TableInsert = table.insert
 
@@ -110,7 +111,8 @@ local function CreateCamera()
             end
 
             renderingCamView = true
-            render.RenderView({
+            local old = DisableClipping(true)
+            RenderView({
                 origin = pos,
                 znear = 7,
                 fov = 65,
@@ -120,6 +122,7 @@ local function CreateCamera()
                 w = w,
                 h = h
             })
+	        DisableClipping(old)
             renderingCamView = false
         end
     end
