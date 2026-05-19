@@ -733,6 +733,7 @@ globals = {
     "Derma_Hook",
     "DetectiveMode",
     "Dev",
+    "DisableClipping",
     "DrawColorModify",
     "DynamicLight",
     "EffectData",

@@ -241,6 +241,7 @@ if SERVER then
 
         if stolen then
             ply:QueueMessage(MSG_PRINTBOTH, "Mum said you have to share!")
+            ply:SubtractCredits(1)
             return false
         end
     end)
