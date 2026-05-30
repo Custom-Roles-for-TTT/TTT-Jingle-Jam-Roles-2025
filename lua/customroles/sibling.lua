@@ -160,7 +160,7 @@ if SERVER then
     end
 
     local function CallShopHooks(isequip, id, ply)
-        CallHook("TTTOrderedEquipment", GAMEMODE, ply, id, isequip, true)
+        CallHook("TTTOrderedEquipment", GAMEMODE, ply, id, isequip)
         ply:AddBought(id)
 
         net.Start("TTT_BoughtItem")
