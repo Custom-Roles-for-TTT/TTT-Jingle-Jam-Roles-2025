@@ -201,6 +201,7 @@ local function Cleanup()
         p.TTTGamerSpaghettiHealTime = nil
         p.TTTGamerHasUniquePrize = nil
         p.TTTGamerNextMilkFart = nil
+        p.TTTGamerPrizes = nil
 
         p:ClearProperty("TTTGamerCheetoMarked")
         if p.SetMaxJumpLevel then

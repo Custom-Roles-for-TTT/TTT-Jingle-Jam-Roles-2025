@@ -4,6 +4,7 @@ local ipairs = ipairs
 local math = math
 local player = player
 local table = table
+local timer = timer
 
 local AddHook = hook.Add
 local FileFind = file.Find
@@ -322,8 +323,82 @@ local prize_meta =  {}
 prize_meta.__index = prize_meta
 
 function prize_meta:Start(ply) end
-function prize_meta:End(ply) end
+function prize_meta:End() end
 function prize_meta:CanStart(ply) return true end
+
+function prize_meta:AddTimer(ply, delay, repetitions, func, suffix)
+    local id = "Gamer_" .. self.Id .. "_" .. ply:SteamID64()
+    if suffix and type(suffix) == "string" and #suffix > 0 then
+        id = id .. "_" .. suffix
+    end
+    timer.Create(id, delay, repetitions, func)
+
+    self.Timers = self.Timers or {}
+    TableInsert(self.Timers, id)
+end
+
+function prize_meta:RemoveTimer(ply, suffix)
+    local id = "Gamer_" .. self.Id .. "_" .. ply:SteamID64()
+    if suffix and type(suffix) == "string" and #suffix > 0 then
+        id = id .. "_" .. suffix
+    end
+    for idx, tId in ipairs(self.Timers or {}) do
+        if tId == id then
+            timer.Remove(tId)
+            table.remove(self.Timers, idx)
+            return
+        end
+    end
+end
+
+function prize_meta:CleanUpTimers()
+    if not self.Timers then return end
+
+    for _, tId in ipairs(self.Timers) do
+        print("Removing timer:", tId)
+        timer.Remove(tId)
+    end
+
+    table.Empty(self.Timers)
+end
+
+function prize_meta:AddHook(hooktype, ply, func, suffix)
+    func = func or self[hooktype]
+
+    local id = "Gamer_" .. self.Id .. "_" .. hooktype .. "_" .. ply:SteamID64()
+    if suffix and type(suffix) == "string" and #suffix > 0 then
+        id = id .. "_" .. suffix
+    end
+    hook.Add(hooktype, id, func)
+
+    self.Hooks = self.Hooks or {}
+    TableInsert(self.Hooks, {hooktype, id})
+end
+
+function prize_meta:RemoveHook(hooktype, ply, suffix)
+    local id = "Gamer_" .. self.Id .. "_" .. hooktype .. "_" .. ply:SteamID64()
+    if suffix and type(suffix) == "string" and #suffix > 0 then
+        id = id .. "_" .. suffix
+    end
+    for idx, ahook in ipairs(self.Hooks or {}) do
+        if ahook[1] == hooktype and ahook[2] == id then
+            hook.Remove(ahook[1], ahook[2])
+            table.remove(self.Hooks, idx)
+            return
+        end
+    end
+end
+
+function prize_meta:CleanUpHooks()
+    if not self.Hooks then return end
+
+    for _, ahook in ipairs(self.Hooks) do
+        print("Removing hook:", ahook[1], ahook[2])
+        hook.Remove(ahook[1], ahook[2])
+    end
+
+    table.Empty(self.Hooks)
+end
 
 function GAMER.AddPrize(prize)
     if GAMER.Prizes[prize.Id] then return end
@@ -433,15 +508,15 @@ end
 -------------
 
 local function Cleanup()
+    for _, prize in pairs(GAMER.Prizes) do
+        prize:CleanUpHooks()
+        prize:CleanUpTimers()
+        prize:End()
+    end
+
     for _, p in PlayerIterator() do
-        if not p.TTTGamerPrizes then return end
-
-        for _, pId in ipairs(p.TTTGamerPrizes) do
-            GAMER.Prizes[pId]:End(p)
-        end
-
-        if SERVER then
-            p:ClearProperty("TTTGamerPrizes", p)
+        for _, weap in ipairs(p:GetWeapons()) do
+            GAMER.ResetWeaponRecoil(weap)
         end
     end
 end

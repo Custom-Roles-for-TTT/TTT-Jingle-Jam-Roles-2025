@@ -12,7 +12,7 @@ local PRIZE = {
 function PRIZE:Start(ply)
     if CLIENT then return end
 
-    hook.Add("EntityTakeDamage", "Gamer_SticksBreakBones_EntityTakeDamage_" .. ply:SteamID64(), function(ent, dmginfo)
+    self:AddHook("EntityTakeDamage", ply, function(ent, dmginfo)
         if not IsPlayer(ent) then return end
 
         local isMeleeDamage = dmginfo:IsDamageType(DMG_SLASH) or dmginfo:IsDamageType(DMG_CLUB)
@@ -35,11 +35,6 @@ function PRIZE:Start(ply)
             end
         end
     end)
-end
-
-function PRIZE:End(ply)
-    if CLIENT then return end
-    hook.Remove("EntityTakeDamage", "Gamer_SticksBreakBones_EntityTakeDamage_" .. ply:SteamID64())
 end
 
 GAMER.AddPrize(PRIZE)

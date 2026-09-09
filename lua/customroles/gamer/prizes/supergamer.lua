@@ -39,16 +39,11 @@ function PRIZE:Start(ply)
     ply:Give("ttt_perk_phd")
 
     -- Take 1/2 damage from everything
-    hook.Add("EntityTakeDamage", "Gamer_Supergamer_EntityTakeDamage_" .. ply:SteamID64(), function(ent, dmginfo)
+    self:AddHook("EntityTakeDamage", ply, function(ent, dmginfo)
         if not IsPlayer(ent) then return end
         if ply ~= ent then return end
         dmginfo:ScaleDamage(0.5)
     end)
-end
-
-function PRIZE:End(ply)
-    if CLIENT then return end
-    hook.Remove("EntityTakeDamage", "Gamer_Supergamer_EntityTakeDamage_" .. ply:SteamID64())
 end
 
 function PRIZE:CanStart(ply)

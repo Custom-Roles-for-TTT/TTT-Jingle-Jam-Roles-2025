@@ -14,7 +14,7 @@ local PRIZE = {
 }
 
 function PRIZE:Start(ply)
-    hook.Add("TTTSpeedMultiplier", "Gamer_TTTSpeedMultiplier_Uncommon_" .. ply:SteamID64(), function(p, mults)
+    self:AddHook("TTTSpeedMultiplier", ply, function(p, mults)
         if not IsPlayer(ply) then return end
         if ply ~= p then return end
         TableInsert(mults, 1.2)
@@ -22,10 +22,6 @@ function PRIZE:Start(ply)
     if GetConVar("ttt_gamer_gacha_silly_prizes"):GetBool() then
         ply:EmitSound("gamer/mtdew.mp3", 100, 100, 1, CHAN_ITEM)
     end
-end
-
-function PRIZE:End(ply)
-    hook.Remove("TTTSpeedMultiplier", "Gamer_TTTSpeedMultiplier_Uncommon_" .. ply:SteamID64())
 end
 
 GAMER.AddPrize(PRIZE)

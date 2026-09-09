@@ -57,22 +57,16 @@ function PRIZE:Start(ply)
     if CLIENT then return end
 
     AssignRandomWeapons(ply)
-    timer.Create("Gamer_Gambler_" .. ply:SteamID64(), 10, 0, function()
+    self:AddTimer(ply, 10, 0, function()
         AssignRandomWeapons(ply)
     end)
 
     -- But you get a 50% damage bonus
-    hook.Add("EntityTakeDamage", "Gamer_Gambler_EntityTakeDamage_" .. ply:SteamID64(), function(ent, dmginfo)
+    self:AddHook("EntityTakeDamage", ply, function(ent, dmginfo)
         if not IsPlayer(ent) then return end
         if ply ~= ent then return end
         dmginfo:ScaleDamage(1.5)
     end)
-end
-
-function PRIZE:End(ply)
-    if CLIENT then return end
-    hook.Remove("EntityTakeDamage", "Gamer_Gambler_EntityTakeDamage_" .. ply:SteamID64())
-    timer.Remove("Gamer_Gambler_" .. ply:SteamID64())
 end
 
 GAMER.AddPrize(PRIZE)

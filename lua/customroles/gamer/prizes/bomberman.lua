@@ -32,16 +32,12 @@ function PRIZE:Start(ply)
         end
     end
 
-    hook.Add("EntityTakeDamage", "Gamer_Bomberman_EntityTakeDamage_" .. ply:SteamID64(), function(ent, dmginfo)
+    self:AddHook("EntityTakeDamage", ply, function(ent, dmginfo)
         if not IsPlayer(ent) then return end
         if ply ~= ent then return end
         if not dmginfo:IsExplosionDamage() then return end
         dmginfo:ScaleDamage(0)
     end)
-end
-
-function PRIZE:End(ply)
-    hook.Remove("EntityTakeDamage", "Gamer_Bomberman_EntityTakeDamage_" .. ply:SteamID64())
 end
 
 function PRIZE:CanStart(ply)

@@ -13,24 +13,20 @@ local PRIZE = {
 }
 
 function PRIZE:Start(ply)
-    hook.Add("TTTSpeedMultiplier", "Gamer_TTTSpeedMultiplier_Legendary_" .. ply:SteamID64(), function(p, mults)
+    self:AddHook("TTTSpeedMultiplier", ply, function(p, mults)
         if not IsPlayer(ply) then return end
         if ply ~= p then return end
         TableInsert(mults, 1.5)
     end)
 
     if SERVER then
+        -- No need to undo Quad Jump because it's already done in the server-side role cleanup
         if ply.SetMaxJumpLevel then
             ply:SetMaxJumpLevel(ply:GetMaxJumpLevel() + 2)
         else
             ply:SetJumpPower(ply:GetJumpPower() + (GAMER.Config.JumpPower * 3))
         end
     end
-end
-
-function PRIZE:End(ply)
-    hook.Remove("TTTSpeedMultiplier", "Gamer_TTTSpeedMultiplier_Legendary_" .. ply:SteamID64())
-    -- No need to undo Quad Jump because it's already done in the server-side role cleanup
 end
 
 GAMER.AddPrize(PRIZE)

@@ -11,7 +11,7 @@ local PRIZE = {
 
 function PRIZE:Start(ply)
     if SERVER then
-        hook.Add("WeaponEquip", "Gamer_WeaponEquip_Rare_" .. ply:SteamID64(), function(weap, p)
+        self:AddHook("WeaponEquip", ply, function(weap, p)
             if not IsPlayer(ply) then return end
             if p ~= ply then return end
             GAMER.AdjustWeaponRecoil(weap, 0.5, p)
@@ -19,15 +19,6 @@ function PRIZE:Start(ply)
     end
     for _, weap in ipairs(ply:GetWeapons()) do
         GAMER.AdjustWeaponRecoil(weap, 0.5)
-    end
-end
-
-function PRIZE:End(ply)
-    if SERVER then
-        hook.Remove("WeaponEquip", "Gamer_WeaponEquip_Rare_" .. ply:SteamID64())
-    end
-    for _, weap in ipairs(ply:GetWeapons()) do
-        GAMER.ResetWeaponRecoil(weap)
     end
 end
 

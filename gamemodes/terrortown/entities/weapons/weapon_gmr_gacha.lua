@@ -95,8 +95,7 @@ local function ChooseRandomPrize(ply)
     for _, prize in pairs(GAMER.Prizes) do
         if prize.IsUnique and ply.TTTGamerHasUniquePrize then continue end
 
-        local plyPrizes = ply.TTTGamerPrizes or {}
-        if TableHasValue(plyPrizes, prize.Id) then continue end
+        if ply.TTTGamerPrizes and TableHasValue(ply.TTTGamerPrizes, prize.Id) then continue end
         if not prize:CanStart(ply) then continue end
 
         TableInsert(prizes[prize.Rarity], prize)
@@ -173,9 +172,10 @@ function SWEP:PrimaryAttack()
                 owner.TTTGamerHasUniquePrize = true
             end
 
-            local prizes = owner.TTTGamerPrizes or {}
-            TableInsert(prizes, prize.Id)
-            owner:SetProperty("TTTGamerPrizes", prizes, owner)
+            if not owner.TTTGamerPrizes then
+                owner.TTTGamerPrizes = {}
+            end
+            TableInsert(owner.TTTGamerPrizes, prize.Id)
         end)
 
         if ammo == 1 and not gacha_only_mode:GetBool() then

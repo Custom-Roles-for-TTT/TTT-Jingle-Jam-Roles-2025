@@ -14,7 +14,7 @@ local PRIZE = {
 
 function PRIZE:Start(ply)
     if CLIENT then return end
-    timer.Create("Gamer_Regen_" .. ply:SteamID64(), 1, 0, function()
+    self:AddTimer(ply, 1, 0, function()
         if not IsPlayer(ply) then return end
         if not ply:Alive() or ply:IsSpec() then return end
 
@@ -25,11 +25,6 @@ function PRIZE:Start(ply)
             ply:SetHealth(newHp)
         end
     end)
-end
-
-function PRIZE:End(ply)
-    if CLIENT then return end
-    timer.Remove("Gamer_Regen_" .. ply:SteamID64())
 end
 
 GAMER.AddPrize(PRIZE)
