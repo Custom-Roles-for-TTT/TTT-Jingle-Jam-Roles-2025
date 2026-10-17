@@ -355,7 +355,6 @@ function prize_meta:CleanUpTimers()
     if not self.Timers then return end
 
     for _, tId in ipairs(self.Timers) do
-        print("Removing timer:", tId)
         timer.Remove(tId)
     end
 
@@ -393,7 +392,6 @@ function prize_meta:CleanUpHooks()
     if not self.Hooks then return end
 
     for _, ahook in ipairs(self.Hooks) do
-        print("Removing hook:", ahook[1], ahook[2])
         hook.Remove(ahook[1], ahook[2])
     end
 
