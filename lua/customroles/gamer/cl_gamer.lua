@@ -622,7 +622,7 @@ AddHook("TTTTutorialRoleText", "Gamer_TTTTutorialRoleText", function(role, title
         if gacha_only_mode:GetBool() then
             html = html .. " cost one credit each and "
         else
-            html = html .. "(gained by buying \" .. LANG.GetTranslation(\"item_gamer_doritos\") .. \")"
+            html = html .. "(gained by buying " .. LANG.GetTranslation("item_gamer_doritos") .. ")"
         end
         html = html .. " can result in buffs of varying qualities:"
         html = html .. "<ul>"
