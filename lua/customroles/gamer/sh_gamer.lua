@@ -283,6 +283,7 @@ GAMER.Rarities = GAMER.Rarities or {
 GAMER.Config = GAMER.Config or {
     CheetoColor = Color(255, 137, 40),
     JumpPower = 160,
+    JumpBoost = 80,
     Rarities = {
         [GAMER.Rarities.Common] = { Name = "gamer_rarity_common", Color = Color(166, 166, 166), Chance = 0.50 },
         [GAMER.Rarities.Uncommon] = { Name = "gamer_rarity_uncommon", Color = Color(0, 182, 33), Chance = 0.20 },
@@ -396,6 +397,29 @@ function prize_meta:CleanUpHooks()
     end
 
     table.Empty(self.Hooks)
+end
+
+function GAMER.AddJumpBoost(ply, mult)
+    if ply.SetMaxJumpLevel then
+        local jumps = cvars.Number("multijump_default_jumps", 1)
+        local maxJumps = ply:GetMaxJumpLevel()
+        -- If we haven't modified the jump level yet, remove the configured default jumps
+        -- from the multiplier to ignore the unmodified jump level
+        -- Don't remove the original jump because otherwise double jump (from the Mt. Dew)
+        -- does nothing
+        if jumps == maxJumps then
+            mult = mult - jumps
+        end
+        ply:SetMaxJumpLevel(maxJumps + mult)
+    else
+        local jumpPower = ply:GetJumpPower()
+        -- If they already got boosted by something else, we need the full multiplier
+        -- Otherwise we take 1 away from the multiplier to include the normal jump
+        if jumpPower == GAMER.Config.JumpPower then
+            mult = mult - 1
+        end
+        ply:SetJumpPower(jumpPower + (GAMER.Config.JumpBoost * mult))
+    end
 end
 
 function GAMER.AddPrize(prize)

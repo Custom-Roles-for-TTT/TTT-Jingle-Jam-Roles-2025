@@ -13,11 +13,7 @@ local PRIZE = {
 function PRIZE:Start(ply)
     if CLIENT then return end
     -- No need to undo Triple Jump because it's already done in the server-side role cleanup
-    if ply.SetMaxJumpLevel then
-        ply:SetMaxJumpLevel(ply:GetMaxJumpLevel() + 1)
-    else
-        ply:SetJumpPower(ply:GetJumpPower() + (GAMER.Config.JumpPower * 2))
-    end
+    GAMER.AddJumpBoost(ply, 3)
 end
 
 GAMER.AddPrize(PRIZE)

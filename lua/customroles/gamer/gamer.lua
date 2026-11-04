@@ -59,11 +59,8 @@ local function Gamer_TTTOrderedEquipment(ply, id, isequip)
         ply:EmitSound("gamer/doritos.mp3", 100, 100, 1, CHAN_ITEM)
     elseif isequip == EQUIP_GAMER_MTDEW then
         if not ply:IsRoleAbilityDisabled() then
-            if ply.SetMaxJumpLevel then
-                ply:SetMaxJumpLevel(ply:GetMaxJumpLevel() + 1)
-            else
-                ply:SetJumpPower(ply:GetJumpPower() + GAMER.Config.JumpPower)
-            end
+            -- No need to undo Double Jump because it's already done in the server-side role cleanup
+            GAMER.AddJumpBoost(ply, 2)
         end
         ply:EmitSound("gamer/mtdew.mp3", 100, 100, 1, CHAN_ITEM)
     elseif isequip == EQUIP_GAMER_CHEETOS then
