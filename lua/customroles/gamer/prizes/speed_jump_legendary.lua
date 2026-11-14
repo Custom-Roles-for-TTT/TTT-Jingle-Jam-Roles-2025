@@ -21,11 +21,7 @@ function PRIZE:Start(ply)
 
     if SERVER then
         -- No need to undo Quad Jump because it's already done in the server-side role cleanup
-        if ply.SetMaxJumpLevel then
-            ply:SetMaxJumpLevel(ply:GetMaxJumpLevel() + 2)
-        else
-            ply:SetJumpPower(ply:GetJumpPower() + (GAMER.Config.JumpPower * 3))
-        end
+        GAMER.AddJumpBoost(ply, 4)
     end
 end
 

@@ -153,12 +153,6 @@ if SERVER then
         WIN_BUTTON = GenerateNewWinID(ROLE_BUTTON)
     end)
 
-    local function Button_TTTCheckForWin()
-        if GetGlobalBool("ttt_button_pressed") and CurTime() > GetGlobalFloat("ttt_button_timer_end", -1) then
-            return WIN_TRAITOR
-        end
-    end
-
     -------------
     -- CLEANUP --
     -------------
@@ -223,8 +217,7 @@ if SERVER then
     ------------------
 
     ROLE.registeredhooks = {
-        ["EntityTakeDamage"] = Button_EntityTakeDamage,
-        ["TTTCheckForWin"] = Button_TTTCheckForWin
+        ["EntityTakeDamage"] = Button_EntityTakeDamage
     }
 end
 

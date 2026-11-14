@@ -137,7 +137,19 @@ if SERVER then
         local curTime = CurTime()
         local timerEnd = GetGlobalFloat("ttt_button_timer_end", -1)
         if timerEnd ~= -1 and curTime > timerEnd then
+            if self.TimerElapsed then return end
+
             self.TimerElapsed = true
+
+            -- If we're debugging, don't end the round
+            if GetConVar("ttt_debug_preventwin"):GetBool() then
+                return
+            end
+
+            -- Stop the win checks so someone else doesn't steal the traitor's win
+            StopWinChecks()
+            -- Delay the actual end for a bit so the net message has a chance to send so the button gets the win too
+            timer.Simple(0.5, function() EndRound(WIN_TRAITOR) end)
             return
         end
 
